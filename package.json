@@ -1,0 +1,25 @@
+{
+  "name": "truecert",
+  "version": "1.0.0",
+  "description": "TrueCert is a decentralized application (dApp) for issuing and verifying certificates securely and transparently using blockchain technology and IPFS (InterPlanetary File System). This project aims to simplify the process of issuing and verifying certificates while ensuring immutability and accessibility.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "ethers": "^5.7.2",
+    "hardhat": "^2.22.17",
+    "mocha": "^11.0.1"
+  },
+  "dependencies": {
+    "chai": "^4.5.0",
+    "cors": "^2.8.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-scripts": "^5.0.1"
+  }
+}

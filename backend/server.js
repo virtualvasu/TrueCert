@@ -1,61 +1,69 @@
 const express = require('express');
+const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 const axios = require('axios');
-require('dotenv').config(); // Load environment variables
+require('dotenv').config();
 
 const app = express();
-const port = 3000;
-
+app.use(cors());
 app.use(express.json());
 
-app.get('/', (req, res) => {
-    res.send('TrueCert home page');
-});
+const port = 3000;
 
-
-
-
-// Issue a certificate
+// Endpoint to issue certificates
 app.post('/certificates/issue', async (req, res) => {
-    const { studentName, por, society, issueDate } = req.body;
+    const { studentName, por, society } = req.body;
 
-    if (!studentName || !por || !society || !issueDate) {
-        return res.status(400).send("All fields are required to issue a new certificate!");
+    // Validate input fields
+    if (!studentName || !por || !society) {
+        return res.status(400).json({ error: "All fields are required to issue a new certificate!" });
     }
 
-    const id = uuidv4();
+    const certificateId = uuidv4();
 
     const certificateData = {
-        message: "Certificate issued successfully",
-        id: id,
-        studentName: studentName,
-        por: por,
-        society: society,
-        issueDate: issueDate
+        message: 'Certificate issued successfully',
+        id: certificateId,
+        studentName,
+        por,
+        society,
+        issueDate: new Date()
     };
 
     try {
-        const pinataUrl = "https://api.pinata.cloud/pinning/pinJSONToIPFS";
+        // Pinata API setup
+        const pinataUrl = 'https://api.pinata.cloud/pinning/pinJSONToIPFS';
         const headers = {
             'Authorization': `Bearer ${process.env.PINATA_JWT_TOKEN}`
         };
 
+        // Upload certificate data to IPFS
         const pinataResponse = await axios.post(pinataUrl, certificateData, { headers });
-
         const ipfsHash = pinataResponse.data.IpfsHash;
 
-        const responseData = {
-            ...certificateData,
-            ipfsHash: ipfsHash
-        };
+        if (!ipfsHash) {
+            return res.status(500).json({ error: "Failed to upload data to IPFS." });
+        }
 
-        res.status(200).send(responseData);
+        console.log("Certificate uploaded to IPFS:", ipfsHash);
+
+        // Return the IPFS hash to the frontend
+        res.status(200).json({
+            message: "Certificate uploaded to IPFS",
+            ipfsHash
+        });
     } catch (error) {
-        console.error("Error uploading to IPFS:", error.message);
-        res.status(500).send("Failed to upload data to IPFS");
+        console.error("Error uploading to IPFS:", error);
+
+        if (error.response) {
+            console.error("Pinata error response:", error.response.data);
+        }
+
+        res.status(500).json({ error: "Failed to upload certificate to IPFS" });
     }
 });
 
+// Start the server
 app.listen(port, () => {
-    console.log(`TrueCert listening on port ${port}`);
+    console.log(`TrueCert server running on http://localhost:${port}`);
 });
