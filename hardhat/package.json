@@ -11,6 +11,7 @@
   "license": "ISC",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "chai-as-promised": "^8.0.1",
     "ethers": "^5.7.2",
     "hardhat": "^2.22.17",
     "mocha": "^11.0.1"

@@ -30,13 +30,6 @@ const contractABI = [
         "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
         "stateMutability": "view",
         "type": "function"
-    },
-    {
-        "inputs": [{ "internalType": "string", "name": "_ipfsHash", "type": "string" }],
-        "name": "revokeCertificate",
-        "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
-        "stateMutability": "nonpayable",
-        "type": "function"
     }
 ];
 
@@ -111,28 +104,5 @@ async function handleCheckCertificate() {
     }
 }
 
-async function handleRevokeCertificate() {
-    try {
-        const { web3, userAccount } = await initializeWeb3();
-
-        const ipfsHash = document.getElementById('revokeIpfsHash').value.trim();
-        if (!ipfsHash) {
-            alert('Please enter an IPFS hash.');
-            return;
-        }
-
-        const contract = new web3.eth.Contract(contractABI, contractAddress);
-        const transaction = await contract.methods.revokeCertificate(ipfsHash).send({ from: userAccount });
-
-        alert(`Certificate revoked! Transaction Hash: ${transaction.transactionHash}`);
-    } catch (error) {
-        console.error("Error:", error.message);
-        alert(`Error: ${error.message}`);
-    }
-}
-
-
 document.getElementById('issueCertificate').onclick = handleIssueCertificate;
 document.getElementById('checkCertificate').onclick = handleCheckCertificate;
-document.getElementById('revokeCertificate').onclick = handleRevokeCertificate;
-//document.getElementById('getCertificateData').onclick = handleGetCertificateData;

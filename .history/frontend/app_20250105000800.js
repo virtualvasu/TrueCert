@@ -57,6 +57,7 @@ async function initializeWeb3() {
     return { web3, userAccount: accounts[0] };
 }
 
+// Issue Certificate
 async function handleIssueCertificate() {
     try {
         const { web3, userAccount } = await initializeWeb3();
@@ -91,11 +92,12 @@ async function handleIssueCertificate() {
     }
 }
 
+// Check Certificate
 async function handleCheckCertificate() {
     try {
         const { web3, userAccount } = await initializeWeb3();
 
-        const ipfsHash = document.getElementById('ipfsHash').value.trim();
+        const ipfsHash = document.getElementById('ipfsHashCheck').value.trim();
         if (!ipfsHash) {
             alert('Please enter an IPFS hash.');
             return;
@@ -111,28 +113,54 @@ async function handleCheckCertificate() {
     }
 }
 
+// Revoke Certificate
 async function handleRevokeCertificate() {
     try {
         const { web3, userAccount } = await initializeWeb3();
 
-        const ipfsHash = document.getElementById('revokeIpfsHash').value.trim();
+        const ipfsHash = document.getElementById('ipfsHashRevoke').value.trim();
         if (!ipfsHash) {
             alert('Please enter an IPFS hash.');
             return;
         }
 
         const contract = new web3.eth.Contract(contractABI, contractAddress);
-        const transaction = await contract.methods.revokeCertificate(ipfsHash).send({ from: userAccount });
+        await contract.methods.revokeCertificate(ipfsHash).send({ from: userAccount });
 
-        alert(`Certificate revoked! Transaction Hash: ${transaction.transactionHash}`);
+        alert("Certificate revoked successfully.");
     } catch (error) {
         console.error("Error:", error.message);
         alert(`Error: ${error.message}`);
     }
 }
 
+// Get Certificate Details
+async function handleGetCertificate() {
+    try {
+        const { web3 } = await initializeWeb3();
 
+        const ipfsHash = document.getElementById('ipfsHashGet').value.trim();
+        if (!ipfsHash) {
+            alert('Please enter an IPFS hash.');
+            return;
+        }
+
+        const contract = new web3.eth.Contract(contractABI, contractAddress);
+        const certificate = await contract.methods.getCertificate(ipfsHash).call();
+
+        alert(`
+            Issuer: ${certificate.issuerAddress}
+            Timestamp: ${new Date(certificate.timeStamp * 1000).toLocaleString()}
+            Revoked: ${certificate.isRevoked}
+        `);
+    } catch (error) {
+        console.error("Error:", error.message);
+        alert(`Error: ${error.message}`);
+    }
+}
+
+// Event Listeners
 document.getElementById('issueCertificate').onclick = handleIssueCertificate;
 document.getElementById('checkCertificate').onclick = handleCheckCertificate;
 document.getElementById('revokeCertificate').onclick = handleRevokeCertificate;
-//document.getElementById('getCertificateData').onclick = handleGetCertificateData;
+document.getElementById('getCertificate').onclick = handleGetCertificate;
