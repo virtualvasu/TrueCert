@@ -65,7 +65,4 @@ contract CertificateStorage {
     function storeOrganisation(string memory _orgAddress, string memory _orgName) public {
         organisations[_orgAddress] = _orgName;
     }
-    function checkOganisationExistence(string memory _orgAddress) public view returns (bool) {
-        return bytes(organisations[_orgAddress]).length > 0;
-    }
 }

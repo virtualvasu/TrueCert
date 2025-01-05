@@ -209,19 +209,6 @@ async function handleIssueCertificate() {
             return;
         }
 
-        // Use the connected MetaMask account as the organisation address
-        const orgAddress = userAccount; // The connected user account is the organisation address
-
-        // Check if the organisation is registered
-        const contract = new web3.eth.Contract(contractABI, contractAddress);
-        const isOrganisationRegistered = await contract.methods.checkOganisationExistence(orgAddress).call();
-        console.log("Organisation Registered: ", isOrganisationRegistered); // Debugging log
-        if (!isOrganisationRegistered) {
-            alert('Your account is not registered as an organisation. Please register it first.');
-            return;
-        }
-
-        // Proceed with issuing the certificate
         const response = await fetch('http://localhost:3000/certificates/issue', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -233,6 +220,7 @@ async function handleIssueCertificate() {
         const { ipfsHash } = await response.json();
         console.log("IPFS Hash:", ipfsHash);
 
+        const contract = new web3.eth.Contract(contractABI, contractAddress);
         const transaction = await contract.methods.storeCertificate(ipfsHash, userAccount).send({ from: userAccount });
 
         alert(`Certificate stored on blockchain! Transaction Hash: ${transaction.transactionHash}`);
@@ -241,7 +229,6 @@ async function handleIssueCertificate() {
         alert(`Error: ${error.message}`);
     }
 }
-
 
 async function handleCheckCertificate() {
     try {

@@ -22,15 +22,11 @@
     <button id="revokeCertificate">Revoke Certificate</button>
     <p id="revokeResult"></p>
 
-    <div>
-        <h3>Store Organisation</h3>
-        <label for="orgAddress">Organisation Address:</label>
-        <input type="text" id="orgAddress" placeholder="Enter organisation address">
-        <label for="orgName">Organisation Name:</label>
-        <input type="text" id="orgName" placeholder="Enter organisation name">
-        <button id="storeOrganisation">Store Organisation</button>
-    </div>
-    
+    <h2>Store Organisation</h2>
+    <input type="text" id="orgAddress" placeholder="Organisation Address" required />
+    <input type="text" id="orgName" placeholder="Organisation Name" required />
+    <button id="storeOrganisation">Store Organisation</button>
+    <p id="storeResult"></p>
 
     <!-- Include Web3.js and app.js -->
     <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>

@@ -1,6 +1,5 @@
 const contractAddress = '0x8f5f84d66D04BcAe4DdBfe4F7939Ef46B4639880'; // Replace with your contract address
 const contractABI = [
-    // The contract ABI remains the same as before
     {
         "inputs": [
             {
@@ -44,25 +43,6 @@ const contractABI = [
             }
         ],
         "name": "checkExistence",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "string",
-                "name": "_orgAddress",
-                "type": "string"
-            }
-        ],
-        "name": "checkOganisationExistence",
         "outputs": [
             {
                 "internalType": "bool",
@@ -191,7 +171,6 @@ async function initializeWeb3() {
         alert('MetaMask is not connected. Please connect your account.');
         throw new Error('No MetaMask account connected.');
     }
-    console.log("Connected account:", accounts[0]);
 
     return { web3, userAccount: accounts[0] };
 }
@@ -209,19 +188,6 @@ async function handleIssueCertificate() {
             return;
         }
 
-        // Use the connected MetaMask account as the organisation address
-        const orgAddress = userAccount; // The connected user account is the organisation address
-
-        // Check if the organisation is registered
-        const contract = new web3.eth.Contract(contractABI, contractAddress);
-        const isOrganisationRegistered = await contract.methods.checkOganisationExistence(orgAddress).call();
-        console.log("Organisation Registered: ", isOrganisationRegistered); // Debugging log
-        if (!isOrganisationRegistered) {
-            alert('Your account is not registered as an organisation. Please register it first.');
-            return;
-        }
-
-        // Proceed with issuing the certificate
         const response = await fetch('http://localhost:3000/certificates/issue', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -233,6 +199,7 @@ async function handleIssueCertificate() {
         const { ipfsHash } = await response.json();
         console.log("IPFS Hash:", ipfsHash);
 
+        const contract = new web3.eth.Contract(contractABI, contractAddress);
         const transaction = await contract.methods.storeCertificate(ipfsHash, userAccount).send({ from: userAccount });
 
         alert(`Certificate stored on blockchain! Transaction Hash: ${transaction.transactionHash}`);
@@ -241,7 +208,6 @@ async function handleIssueCertificate() {
         alert(`Error: ${error.message}`);
     }
 }
-
 
 async function handleCheckCertificate() {
     try {
@@ -283,37 +249,8 @@ async function handleRevokeCertificate() {
     }
 }
 
-// New function to handle storing an organisation
-async function handleStoreOrganisation() {
-    try {
-        const { web3, userAccount } = await initializeWeb3();
-
-        const adminAddress = '0x3d7178de2a7d863629d429635db30a687a0a2f65'; // Replace with the actual admin address
-        if (userAccount.toLowerCase() !== adminAddress.toLowerCase()) {
-            alert('You must be the admin to store the organisation. Please switch to the admin account.');
-            return;
-        }
-
-        const orgAddress = document.getElementById('orgAddress').value.trim();
-        const orgName = document.getElementById('orgName').value.trim();
-
-        if (!orgAddress || !orgName) {
-            alert('Please fill in both fields.');
-            return;
-        }
-
-        const contract = new web3.eth.Contract(contractABI, contractAddress);
-        const transaction = await contract.methods.storeOrganisation(orgAddress, orgName).send({ from: userAccount });
-
-        alert(`Organisation stored on blockchain! Transaction Hash: ${transaction.transactionHash}`);
-    } catch (error) {
-        console.error("Error:", error.message);
-        alert(`Error: ${error.message}`);
-    }
-}
-
 
 document.getElementById('issueCertificate').onclick = handleIssueCertificate;
 document.getElementById('checkCertificate').onclick = handleCheckCertificate;
 document.getElementById('revokeCertificate').onclick = handleRevokeCertificate;
-document.getElementById('storeOrganisation').onclick = handleStoreOrganisation; // Add event listener for storing organisation
+//document.getElementById('getCertificateData').onclick = handleGetCertificateData;

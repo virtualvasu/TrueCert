@@ -209,15 +209,19 @@ async function handleIssueCertificate() {
             return;
         }
 
-        // Use the connected MetaMask account as the organisation address
-        const orgAddress = userAccount; // The connected user account is the organisation address
+        // Fetch organisation address (could be based on society or user input)
+        const orgAddress = document.getElementById('orgAddress').value.trim();
+        if (!orgAddress) {
+            alert('Please provide the organisation address.');
+            return;
+        }
+
+        const contract = new web3.eth.Contract(contractABI, contractAddress);
 
         // Check if the organisation is registered
-        const contract = new web3.eth.Contract(contractABI, contractAddress);
         const isOrganisationRegistered = await contract.methods.checkOganisationExistence(orgAddress).call();
-        console.log("Organisation Registered: ", isOrganisationRegistered); // Debugging log
         if (!isOrganisationRegistered) {
-            alert('Your account is not registered as an organisation. Please register it first.');
+            alert('The organisation is not registered. Please register the organisation first.');
             return;
         }
 
