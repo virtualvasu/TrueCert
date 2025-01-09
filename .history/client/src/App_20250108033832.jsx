@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import OrgHome from './components/organisation/OrgHome';
-import UserHome from './components/user/UserHome';
 
 function App() {
   const [showOrgHome, setShowOrgHome] = useState(false);
@@ -58,8 +57,9 @@ function App() {
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">
               User Content
             </h2>
-            <UserHome />
-            
+            <p className="text-gray-600">
+              This is some sample content for the user. You can implement further functionality here.
+            </p>
           </div>
         </div>
       )}

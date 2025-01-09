@@ -58,7 +58,6 @@ function App() {
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">
               User Content
             </h2>
-            <UserHome />
             
           </div>
         </div>
