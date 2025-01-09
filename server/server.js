@@ -12,21 +12,12 @@ const port = 3000;
 
 // Endpoint to issue certificates
 app.post('/certificates/issue', async (req, res) => {
-    const { studentName, por, society } = req.body;
-
-    // Validate input fields
-    if (!studentName || !por || !society) {
-        return res.status(400).json({ error: "All fields are required to issue a new certificate!" });
-    }
-
     const certificateId = uuidv4();
 
     const certificateData = {
         message: 'Certificate issued successfully',
-        id: certificateId,
-        studentName,
-        por,
-        society,
+        certificateId,
+        mainDocData: req.body,
         issueDate: new Date()
     };
 
