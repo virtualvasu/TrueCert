@@ -1,4 +1,4 @@
-
+// Import necessary libraries
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
@@ -125,14 +125,14 @@ describe("CertificateStorage Contract", function () {
     it("should return true for an existing organisation", async function () {
         await certificateStorage.storeOrganisation(orgAddress, orgName);
 
-        const exists = await certificateStorage.checkOrganisationExistence(orgAddress);
+        const exists = await certificateStorage.checkOganisationExistence(orgAddress);
 
         expect(exists).to.equal(true);
     });
 
     it("should return false for a non-existent organisation", async function () {
         const nonExistentOrgAddress = "0xabcdefabcdefabcdefabcdefabcdefabcdefabcdef";
-        const exists = await certificateStorage.checkOrganisationExistence(nonExistentOrgAddress);
+        const exists = await certificateStorage.checkOganisationExistence(nonExistentOrgAddress);
 
         expect(exists).to.equal(false);
     });

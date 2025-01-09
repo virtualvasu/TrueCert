@@ -38,7 +38,7 @@ const IssueCertificate = () => {
 
             const contract = new web3.eth.Contract(contractABI, contractAddress);
             console.log("current user account", userAccount);
-            const isOrganisationRegistered = await contract.methods.checkOrganisationExistence(userAccount).call();
+            const isOrganisationRegistered = await contract.methods.checkOganisationExistence(userAccount).call();
             console.log("org registered: ", isOrganisationRegistered);
 
             ///////////////////////////

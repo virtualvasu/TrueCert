@@ -31,7 +31,7 @@ const CheckOrganisation = () => {
             }
 ////////////////////////////
             const contract = new web3.eth.Contract(contractABI, contractAddress);
-            const organisationExists = await contract.methods.checkOrganisationExistence(orgAddress).call();
+            const organisationExists = await contract.methods.checkOganisationExistence(orgAddress).call();
             console.log('Organisation Address:', orgAddress);
             console.log('Organisation exists:', organisationExists);
 ////////////////////////////

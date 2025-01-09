@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import Web3 from 'web3';
 
+const adminAddress = import.meta.env.VITE_ADMIN_PUBLIC_ADDRESS;
+
 import { contractAddress, contractABI } from './contractDetails';
 
-const CheckOrganisation = () => {
+const RevokeOrganisation = () => {
     const [orgAddress, setOrgAddress] = useState('');
-    const [exists, setExists] = useState(null);
 
     async function initializeWeb3() {
         if (typeof window.ethereum === 'undefined') {
@@ -21,22 +22,24 @@ const CheckOrganisation = () => {
         return { web3, userAccount: accounts[0] };
     }
 
-    async function handleCheckOrganisation() {
+    async function handleRevokeOrganisation() {
         try {
-            const { web3 } = await initializeWeb3();
+            const { web3, userAccount } = await initializeWeb3();
+
+            if (userAccount.toLowerCase() !== adminAddress.toLowerCase()) {
+                alert('You must be the admin to revoke the organisation. Please switch to the admin account.');
+                return;
+            }
 
             if (!orgAddress) {
                 alert('Please enter an organisation address.');
                 return;
             }
-////////////////////////////
-            const contract = new web3.eth.Contract(contractABI, contractAddress);
-            const organisationExists = await contract.methods.checkOrganisationExistence(orgAddress).call();
-            console.log('Organisation Address:', orgAddress);
-            console.log('Organisation exists:', organisationExists);
-////////////////////////////
 
-            setExists(organisationExists);
+            const contract = new web3.eth.Contract(contractABI, contractAddress);
+            const transaction = await contract.methods.revokeOrganisation(orgAddress).send({ from: userAccount });
+
+            alert(`Organisation revoked from the blockchain! Transaction Hash: ${transaction.transactionHash}`);
         } catch (error) {
             console.error("Error:", error.message);
             alert(`Error: ${error.message}`);
@@ -46,7 +49,7 @@ const CheckOrganisation = () => {
     return (
         <div className="flex flex-col items-center justify-center bg-gray-100 p-6">
             <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">Check Organisation</h2>
+                <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">Revoke Organisation</h2>
                 <div className="mb-4">
                     <label htmlFor="orgAddress" className="block text-sm font-medium text-gray-700 mb-2">
                         Organisation Address
@@ -61,23 +64,14 @@ const CheckOrganisation = () => {
                     />
                 </div>
                 <button
-                    onClick={handleCheckOrganisation}
-                    className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    onClick={handleRevokeOrganisation}
+                    className="w-full bg-red-600 text-white py-2 px-4 rounded-md shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                 >
-                    Check Organisation
+                    Revoke Organisation
                 </button>
-                {exists !== null && (
-                    <div className="mt-4 text-center">
-                        {exists ? (
-                            <p className="text-green-600 font-medium">Organisation exists in the blockchain!</p>
-                        ) : (
-                            <p className="text-red-600 font-medium">Organisation does not exist.</p>
-                        )}
-                    </div>
-                )}
             </div>
         </div>
     );
 };
 
-export default CheckOrganisation;
+export default RevokeOrganisation;

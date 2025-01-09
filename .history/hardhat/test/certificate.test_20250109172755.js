@@ -1,4 +1,4 @@
-
+// Import necessary libraries
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
@@ -125,29 +125,29 @@ describe("CertificateStorage Contract", function () {
     it("should return true for an existing organisation", async function () {
         await certificateStorage.storeOrganisation(orgAddress, orgName);
 
-        const exists = await certificateStorage.checkOrganisationExistence(orgAddress);
+        const exists = await certificateStorage.checkOganisationExistence(orgAddress);
 
         expect(exists).to.equal(true);
     });
 
     it("should return false for a non-existent organisation", async function () {
         const nonExistentOrgAddress = "0xabcdefabcdefabcdefabcdefabcdefabcdefabcdef";
-        const exists = await certificateStorage.checkOrganisationExistence(nonExistentOrgAddress);
+        const exists = await certificateStorage.checkOganisationExistence(nonExistentOrgAddress);
 
         expect(exists).to.equal(false);
     });
 
-    
+    // Tests for revokeOrganisation function
     it("should revoke an organisation", async function () {
         await certificateStorage.storeOrganisation(orgAddress, orgName);
 
         const transactionResponse = await certificateStorage.revokeOrganisation(orgAddress);
         const receipt = await transactionResponse.wait();
 
-        expect(receipt.status).to.equal(1); 
+        expect(receipt.status).to.equal(1); // Check if transaction was successful
 
         const orgNameAfterRevoke = await certificateStorage.organisations(orgAddress);
-        expect(orgNameAfterRevoke).to.equal(""); 
+        expect(orgNameAfterRevoke).to.equal(""); // Ensure organisation is removed
     });
 
     it("should not allow revoking a non-existent organisation", async function () {

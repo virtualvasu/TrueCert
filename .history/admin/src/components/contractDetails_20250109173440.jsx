@@ -1,6 +1,7 @@
 export const contractAddress = '0x7D8BC76283D5B4967d29EF7B22FF6e2d2e0dcE49';
 
 export const contractABI = [
+    
     {
         "inputs": [
             {
@@ -62,7 +63,7 @@ export const contractABI = [
                 "type": "string"
             }
         ],
-        "name": "checkOrganisationExistence",
+        "name": "checkOganisationExistence",
         "outputs": [
             {
                 "internalType": "bool",
@@ -130,25 +131,6 @@ export const contractABI = [
             }
         ],
         "name": "revokeCertificate",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "string",
-                "name": "_orgAddress",
-                "type": "string"
-            }
-        ],
-        "name": "revokeOrganisation",
         "outputs": [
             {
                 "internalType": "bool",
