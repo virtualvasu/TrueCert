@@ -9,7 +9,7 @@ contract CertificateStorage {
     }
 
     mapping(string => metaData) public certificates;
-    mapping (string=> string) public organisations;
+    mapping(string => string) public organisations;
 
     function storeCertificate(
         string memory _ipfsHash,
@@ -63,19 +63,34 @@ contract CertificateStorage {
     }
     //admin fucntions
 
-    function storeOrganisation(string memory _orgAddress, string memory _orgName) public {
+    function storeOrganisation(
+        string memory _orgAddress,
+        string memory _orgName
+    ) public {
         organisations[_orgAddress] = _orgName;
     }
-    function checkOrganisationExistence(string memory _orgAddress) public view returns (bool) {
+    function checkOrganisationExistence(
+        string memory _orgAddress
+    ) public view returns (bool) {
         return bytes(organisations[_orgAddress]).length > 0;
     }
 
-    function revokeOrganisation(string memory _orgAddress) public returns (bool) {
+    function revokeOrganisation(
+        string memory _orgAddress
+    ) public returns (bool) {
         require(
             bytes(organisations[_orgAddress]).length > 0,
             "Organisation does not exist"
         );
         delete organisations[_orgAddress];
         return true;
+    }
+
+    function getOrgName(string memory _orgAddress) public view returns (string memory) {
+        require(
+            bytes(organisations[_orgAddress]).length > 0,
+            "Organisation does not exist"
+        );
+        return organisations[_orgAddress];
     }
 }

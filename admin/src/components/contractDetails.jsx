@@ -1,4 +1,4 @@
-export const contractAddress = '0x7D8BC76283D5B4967d29EF7B22FF6e2d2e0dcE49';
+export const contractAddress = '0x3a55C806cB01418dc22B3bD192f1F2607108D892';
 
 export const contractABI = [
     {
@@ -97,6 +97,25 @@ export const contractABI = [
                 "internalType": "bool",
                 "name": "isRevoked",
                 "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "_orgAddress",
+                "type": "string"
+            }
+        ],
+        "name": "getOrgName",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "",
+                "type": "string"
             }
         ],
         "stateMutability": "view",

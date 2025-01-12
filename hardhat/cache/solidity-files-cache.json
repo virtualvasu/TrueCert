@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/virtu/Desktop/ongoing_projects/TrueCert/hardhat/contracts/Certificate.sol": {
-      "lastModificationDate": 1736424144859,
-      "contentHash": "925e1f2412fc64feb1c725e3ccecd3ef",
+      "lastModificationDate": 1736432703902,
+      "contentHash": "0c8d96f4e068e25f448d97e68bf46fad",
       "sourceName": "contracts/Certificate.sol",
       "solcConfig": {
         "version": "0.8.28",

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Web3 from 'web3';
+import jsPDF from 'jspdf';
 import { template1, template2 } from '../profile/docTemplates/templates'; // Import your templates
 import { contractAddress, contractABI } from './contractDetails';
 
@@ -73,6 +74,7 @@ const IssueCertificate = () => {
     const templates = { template1, template2 };
     const [selectedTemplate, setSelectedTemplate] = useState(null);
     const [formValues, setFormValues, handleChange] = useForm({});
+    const [certificateData, setCertificateData] = useState(null);
 
     const handleTemplateChange = (e) => {
         const templateName = e.target.value;
@@ -114,11 +116,110 @@ const IssueCertificate = () => {
             const transaction = await contract.methods.storeCertificate(ipfsHash, userAccount).send({ from: userAccount });
 
             alert(`Certificate stored on blockchain! Transaction Hash: ${transaction.transactionHash}`);
+
+            // Save certificate data for PDF generation
+            setCertificateData({
+                ...formValues,
+                ipfsHash,
+                organisation: userAccount,
+            });
         } catch (error) {
             console.error('Error:', error.message);
             alert(`Error: ${error.message}`);
         }
     };
+
+    const handleGeneratePDF = () => {
+        if (!certificateData) {
+            alert('No certificate data available to generate PDF.');
+            return;
+        }
+
+        const doc = new jsPDF();
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        // Gradient-like background
+        const colors = [
+            [240, 248, 255], // Light blue
+            [173, 216, 230], // Sky blue
+            [255, 255, 255]  // White
+        ];
+
+        for (let i = 0; i < colors.length; i++) {
+            doc.setFillColor(...colors[i]);
+            doc.rect(0, (pageHeight / colors.length) * i, pageWidth, pageHeight / colors.length, 'F');
+        }
+
+        // Decorative border
+        doc.setDrawColor(0, 128, 255);
+        doc.setLineWidth(5);
+        doc.rect(15, 15, pageWidth - 30, pageHeight - 30);
+
+        // Title
+        doc.setFont('Times', 'bold');
+        doc.setFontSize(36);
+        doc.setTextColor(0, 51, 102);
+        doc.text('Certificate of Achievement', pageWidth / 2, 60, { align: 'center' });
+
+        // Subtitle
+        doc.setFont('Times', 'italic');
+        doc.setFontSize(20);
+        doc.setTextColor(50, 50, 50);
+        doc.text('Awarded for Excellence and Dedication', pageWidth / 2, 80, { align: 'center' });
+
+        // Add watermark
+        doc.setFontSize(60);
+        doc.setTextColor(200, 200, 200);
+        doc.text('DRAFT', pageWidth / 2, pageHeight / 2, { align: 'center', angle: 45 });
+
+        // Organisation Name
+        doc.setFont('Helvetica', 'normal');
+        doc.setFontSize(18);
+        doc.setTextColor(0, 51, 102);
+        doc.text(`Organisation: ${certificateData.organisation}`, 20, 110);
+
+        // IPFS hash
+        doc.setFontSize(14);
+        doc.setTextColor(80, 80, 80);
+        doc.text(`IPFS Hash: ${certificateData.ipfsHash}`, 20, 130);
+
+        // Table-like section for other fields
+        const fieldStartY = 150;
+        const fieldPadding = 5;
+        const fieldHeight = 10;
+
+        Object.entries(certificateData).forEach(([key, value], index) => {
+            if (key !== 'ipfsHash' && key !== 'organisation') {
+                const y = fieldStartY + index * (fieldHeight + fieldPadding);
+                // Row background color
+                doc.setFillColor(index % 2 === 0 ? 220 : 240, 240, 255);
+                doc.rect(15, y - fieldPadding / 2, pageWidth - 30, fieldHeight + fieldPadding / 2, 'F');
+
+                // Text
+                doc.setTextColor(0);
+                doc.setFontSize(12);
+                doc.text(`${key.charAt(0).toUpperCase() + key.slice(1)}:`, 25, y + (fieldHeight / 2));
+                doc.text(value.toString(), pageWidth / 2, y + (fieldHeight / 2), { align: 'left' });
+            }
+        });
+
+        // Footer
+        doc.setFontSize(12);
+        doc.setTextColor(80, 80, 80);
+        doc.text(
+            'This certificate is digitally signed and secured using blockchain technology.',
+            pageWidth / 2,
+            pageHeight - 30,
+            { align: 'center' }
+        );
+
+        // Save the PDF
+        doc.save('certificate.pdf');
+    };
+
+
+
 
     return (
         <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
@@ -141,6 +242,14 @@ const IssueCertificate = () => {
                     >
                         Issue Certificate
                     </button>
+                    {certificateData && (
+                        <button
+                            onClick={handleGeneratePDF}
+                            className="w-full mt-4 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1"
+                        >
+                            Download Certificate PDF
+                        </button>
+                    )}
                 </>
             )}
         </div>

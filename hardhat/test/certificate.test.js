@@ -1,4 +1,3 @@
-
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
@@ -137,7 +136,6 @@ describe("CertificateStorage Contract", function () {
         expect(exists).to.equal(false);
     });
 
-    
     it("should revoke an organisation", async function () {
         await certificateStorage.storeOrganisation(orgAddress, orgName);
 
@@ -154,6 +152,27 @@ describe("CertificateStorage Contract", function () {
         let errorOccurred = false;
         try {
             await certificateStorage.revokeOrganisation(orgAddress);
+        } catch (error) {
+            errorOccurred = true;
+            expect(error.message).to.include("Organisation does not exist");
+        }
+
+        expect(errorOccurred).to.be.true; // Ensure an error occurred
+    });
+
+    // Tests for getOrgName function
+    it("should return the name of an existing organisation", async function () {
+        await certificateStorage.storeOrganisation(orgAddress, orgName);
+
+        const orgNameReturned = await certificateStorage.getOrgName(orgAddress);
+
+        expect(orgNameReturned).to.equal(orgName);
+    });
+
+    it("should not allow getting the name of a non-existent organisation", async function () {
+        let errorOccurred = false;
+        try {
+            await certificateStorage.getOrgName(orgAddress);
         } catch (error) {
             errorOccurred = true;
             expect(error.message).to.include("Organisation does not exist");
