@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import Web3 from 'web3';
 import jsPDF from 'jspdf';
-import { template1, template2 } from '../profile/docTemplates/templates'; // Import your templates
-import { contractAddress, contractABI } from './contractDetails';
+import { template1, template2 } from '../../../assets/issuer/docTemplates/templates'; // Import your templates
+import { contractAddress, contractABI } from '../../../assets/contractDetails';
 
 // Utility functions
 const initializeWeb3 = async () => {

@@ -3,7 +3,7 @@ import Web3 from 'web3';
 
 const adminAddress = import.meta.env.VITE_ADMIN_PUBLIC_ADDRESS;
 
-import {contractAddress, contractABI} from './contractDetails';
+import {contractAddress, contractABI} from '../../assets/contractDetails';
 
 const StoreOrganisation = () => {
     const [orgAddress, setOrgAddress] = useState('');

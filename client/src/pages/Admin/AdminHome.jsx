@@ -1,41 +1,17 @@
-import './App.css';
-import { useState } from 'react';
-import StoreOrganisation from './components/StoreOrganisation';
-import CheckOrganisation from './components/CheckOrganisation';
-import RevokeOrganisation from './components/RevokeOrganisation';
+import React, { useState } from 'react';
+import StoreOrganisation from '../../components/admin/StoreOrganisation';
+import CheckOrganisation from '../../components/admin/CheckOrganisation';
+import RevokeOrganisation from '../../components/admin/RevokeOrganisation';
 
-function App() {
-  const [isStoreOrganisationVisible, setIsStoreOrganisationVisible] = useState(false);
-  const [isCheckOrganisationVisible, setIsCheckOrganisationVisible] = useState(false);
-  const [isRevokeOrganisationVisible, setIsRevokeOrganisationVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+const AdminHome = () => {
+  const [activeSection, setActiveSection] = useState(null); // State to track the active section
+  const [isLoading, setIsLoading] = useState(false); // Loading state
 
-  const handleShowStoreOrganisation = () => {
+  // Function to show a section based on the clicked button
+  const handleShowSection = (section) => {
     setIsLoading(true);
     setTimeout(() => {
-      setIsStoreOrganisationVisible(true);
-      setIsCheckOrganisationVisible(false);
-      setIsRevokeOrganisationVisible(false);
-      setIsLoading(false);
-    }, 500);
-  };
-
-  const handleShowCheckOrganisation = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsCheckOrganisationVisible(true);
-      setIsStoreOrganisationVisible(false);
-      setIsRevokeOrganisationVisible(false);
-      setIsLoading(false);
-    }, 500);
-  };
-
-  const handleShowRevokeOrganisation = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsRevokeOrganisationVisible(true);
-      setIsStoreOrganisationVisible(false);
-      setIsCheckOrganisationVisible(false);
+      setActiveSection(section);
       setIsLoading(false);
     }, 500);
   };
@@ -56,22 +32,22 @@ function App() {
           <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">Admin Dashboard</h2>
 
           {/* Buttons to toggle components */}
-          {!isStoreOrganisationVisible && !isCheckOrganisationVisible && !isRevokeOrganisationVisible && (
+          {!activeSection && !isLoading && (
             <div className="grid grid-cols-1 gap-4">
               <button
-                onClick={handleShowStoreOrganisation}
+                onClick={() => handleShowSection('store')}
                 className="w-full px-6 py-4 text-lg font-medium text-white bg-yellow-500 rounded-lg shadow-lg transition-transform duration-300 hover:bg-yellow-600 hover:scale-105"
               >
                 Store Organisation
               </button>
               <button
-                onClick={handleShowCheckOrganisation}
+                onClick={() => handleShowSection('check')}
                 className="w-full px-6 py-4 text-lg font-medium text-white bg-indigo-500 rounded-lg shadow-lg transition-transform duration-300 hover:bg-indigo-600 hover:scale-105"
               >
                 Check Organisation
               </button>
               <button
-                onClick={handleShowRevokeOrganisation}
+                onClick={() => handleShowSection('revoke')}
                 className="w-full px-6 py-4 text-lg font-medium text-white bg-red-500 rounded-lg shadow-lg transition-transform duration-300 hover:bg-red-600 hover:scale-105"
               >
                 Revoke Organisation
@@ -87,22 +63,20 @@ function App() {
             </div>
           )}
 
-          {/* Store Organisation Component */}
-          {!isLoading && isStoreOrganisationVisible && (
+          {/* Display active section */}
+          {!isLoading && activeSection === 'store' && (
             <div className="mt-8">
               <StoreOrganisation />
             </div>
           )}
 
-          {/* Check Organisation Component */}
-          {!isLoading && isCheckOrganisationVisible && (
+          {!isLoading && activeSection === 'check' && (
             <div className="mt-8">
               <CheckOrganisation />
             </div>
           )}
 
-          {/* Revoke Organisation Component */}
-          {!isLoading && isRevokeOrganisationVisible && (
+          {!isLoading && activeSection === 'revoke' && (
             <div className="mt-8">
               <RevokeOrganisation />
             </div>
@@ -111,6 +85,6 @@ function App() {
       </div>
     </div>
   );
-}
+};
 
-export default App;
+export default AdminHome;

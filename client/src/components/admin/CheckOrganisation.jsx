@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Web3 from 'web3';
 
-import { contractAddress, contractABI } from './contractDetails';
+import { contractAddress, contractABI } from '../../assets/contractDetails';
 
 const CheckOrganisation = () => {
     const [orgAddress, setOrgAddress] = useState('');

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import CheckCertificate from './actions/CheckCertificate';
-import IssueCertificate from './actions/IssueCertificate';
-import RevokeCertificate from './actions/RevokeCertificate';
+import IssueCertificate from '../../../components/user/issuer/IssueCertificate';
+import CheckCertificate from '../../../components/user/issuer/CheckCertificate';
+import RevokeCertificate from '../../../components/user/issuer/RevokeCertificate';
 
-function OrgActions() {
+function IssuerActions() {
   const [activeComponent, setActiveComponent] = useState(null);
 
   return (
@@ -75,4 +75,4 @@ function OrgActions() {
   );
 }
 
-export default OrgActions;
+export default IssuerActions;
