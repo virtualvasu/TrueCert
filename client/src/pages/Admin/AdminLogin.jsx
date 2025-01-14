@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Web3 from 'web3';
+import { ArrowRight } from 'lucide-react'; // Importing the icon from lucide-react
 
 const adminAddress = import.meta.env.VITE_ADMIN_PUBLIC_ADDRESS; // Admin's public address
 
@@ -44,26 +45,41 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">Admin Login</h2>
-        {isConnected ? (
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 flex items-center justify-center p-6">
+      <div className="w-full max-w-md bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden border border-white border-opacity-20">
+        <header className="bg-gradient-to-r from-blue-700 to-indigo-700 text-white p-8">
           <div className="text-center">
-            <p className="text-green-600 font-medium mb-4">
-              Connected to MetaMask as: {userAccount}
+            <div className="flex justify-center mb-4">
+              <ArrowRight className="w-12 h-12 text-white" />
+            </div>
+            <h1 className="text-4xl font-extrabold tracking-tight">TrueCert</h1>
+            <p className="text-lg mt-2 text-blue-100">
+              Blockchain-Powered Certificate Management
             </p>
           </div>
-        ) : (
-          <>
-            {error && <p className="text-red-600 mb-4">{error}</p>}
-            <button
-              onClick={connectMetaMask}
-              className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            >
-              Connect MetaMask
-            </button>
-          </>
-        )}
+        </header>
+
+        <div className="p-8">
+          <h2 className="text-2xl font-bold text-center text-white mb-4">Admin Login</h2>
+
+          {isConnected ? (
+            <div className="text-center">
+              <p className="text-green-600 font-medium mb-4">
+                Connected to MetaMask as: {userAccount}
+              </p>
+            </div>
+          ) : (
+            <>
+              {error && <p className="text-red-600 mb-4 text-center">{error}</p>}
+              <button
+                onClick={connectMetaMask}
+                className="w-full bg-gradient-to-r from-indigo-500 to-indigo-600 text-white py-3 px-6 rounded-xl shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] text-lg font-semibold"
+              >
+                Connect MetaMask
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

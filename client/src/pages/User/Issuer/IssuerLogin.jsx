@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import Web3 from 'web3';
 import { contractAddress, contractABI } from '../../../assets/contractDetails';
-import { useNavigate } from 'react-router-dom';  // Import navigate from react-router-dom
+import { useNavigate } from 'react-router-dom'; // Import navigate from react-router-dom
+import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/solid'; // Icons for success and error
 
 const IssuerLogin = () => {
   const [userAccount, setUserAccount] = useState(null);
@@ -45,7 +46,7 @@ const IssuerLogin = () => {
 
       // Redirect if organisation exists
       if (organisationExists) {
-        navigate('/user/issuer/home'); // Use navigate for redirection
+        // No alert, instead show a button for the user to click
       }
     } catch (error) {
       console.error("Error:", error.message);
@@ -53,38 +54,62 @@ const IssuerLogin = () => {
     }
   };
 
+  // Redirect to Issuer Home Page
+  const handleRedirect = () => {
+    navigate('/user/issuer/home'); // Redirect to Issuer Home Page
+  };
+
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
-      <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">Login with MetaMask</h2>
-      
-      <button
-        onClick={initializeWeb3}
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
-      >
-        Connect MetaMask
-      </button>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
+      <div className="bg-white p-10 rounded-3xl shadow-2xl text-center max-w-md w-full">
+        <h2 className="text-3xl font-extrabold text-gray-800 mb-8">Issuer Login</h2>
+        
+        <button
+          onClick={initializeWeb3}
+          className="w-full bg-blue-600 text-white py-3 px-6 rounded-xl shadow-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105"
+        >
+          Connect MetaMask
+        </button>
 
-      {userAccount && (
-        <div className="mt-4 text-center text-green-600">
-          <p>Connected Account: {userAccount}</p>
-        </div>
-      )}
+        {userAccount && (
+          <div className="mt-6 text-center text-green-600">
+            <p className="font-medium">Connected Account: {userAccount}</p>
+          </div>
+        )}
 
-      {orgExists !== null && (
-        <div className="mt-4 text-center">
-          {orgExists ? (
-            <p className="text-green-600 font-medium">Organisation exists in the blockchain!</p>
-          ) : (
-            <p className="text-red-600 font-medium">Organisation does not exist.</p>
-          )}
-        </div>
-      )}
+        {orgExists !== null && (
+          <div className="mt-6">
+            {orgExists ? (
+              <div className="flex items-center justify-center bg-green-100 p-4 rounded-lg shadow-md">
+                <CheckCircleIcon className="w-6 h-6 text-green-600 mr-3" />
+                <p className="text-green-600 font-medium">Your organization is registered in the blockchain!</p>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center bg-red-100 p-4 rounded-lg shadow-md">
+                <XCircleIcon className="w-6 h-6 text-red-600 mr-3" />
+                <p className="text-red-600 font-medium">Your organization is not registered on <b>TrueCert</b>.</p>
+              </div>
+            )}
+          </div>
+        )}
 
-      {error && (
-        <div className="mt-4 text-center text-red-600">
-          <p>{error}</p>
-        </div>
-      )}
+        {orgExists && (
+          <div className="mt-6">
+            <button
+              onClick={handleRedirect}
+              className="w-full bg-green-600 text-white py-3 px-6 rounded-xl shadow-xl hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105"
+            >
+              Go to Issuer Home
+            </button>
+          </div>
+        )}
+
+        {error && (
+          <div className="mt-6 text-center text-red-600">
+            <p>{error}</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
