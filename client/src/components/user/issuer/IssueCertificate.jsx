@@ -103,12 +103,13 @@ const IssueCertificate = () => {
                 alert('Your account is not registered as an organisation. Please register it first.');
                 return;
             }
-
-            const response = await fetch('http://localhost:3000/certificates/issue', {
+            const serverURL = import.meta.env.VITE_SERVER_URL;
+            const response = await fetch(`${serverURL}/certificates/issue`, { // Use backticks here
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formValues),
             });
+
 
             if (!response.ok) throw new Error(await response.text());
 

@@ -8,7 +8,7 @@ const CheckCertificate = () => {
   const [loading, setLoading] = useState(false);
 
   // Initialize Web3 with a provider
-  const web3 = new Web3(new Web3.providers.HttpProvider('https://sepolia.infura.io/v3/552a80119c09433184870a43c973971c')); // e.g., Infura or Alchemy URL
+  const web3 = new Web3(new Web3.providers.HttpProvider(import.meta.env.VITE_INFURA_URL_SEPOLIA)); // e.g., Infura or Alchemy URL
 
   const handleCheckCertificate = async () => {
     try {
