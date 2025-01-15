@@ -14,7 +14,7 @@ const initializeWeb3 = async () => {
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     if (!accounts || accounts.length === 0) {
         alert('MetaMask is not connected. Please connect your account.');
-        throw new Error('No MetaMask account connected.');
+        throw new Error('No MetaMask account connected with TrueCert.');
     }
     return { web3, userAccount: web3.utils.toChecksumAddress(accounts[0]) };
 };
