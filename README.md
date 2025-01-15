@@ -51,3 +51,4 @@ TrueCert is built using the following technologies:
 
 4. Follow the setup instructions for the smart contracts and frontend.
 
+For more info about this project, refer this article on Medium: https://medium.com/@virtualvasu/truecert-a-decentralized-certificate-issuing-and-verification-service-fcb346ae24a4
