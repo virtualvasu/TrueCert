@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import Web3 from 'web3';
-import jsPDF from 'jspdf';
-import { template1, template2 } from '../../../assets/issuer/docTemplates/templates'; // Import your templates
+import { template1, template2 } from '../../../assets/issuer/docTemplates/templates';
 import { contractAddress, contractABI } from '../../../assets/contractDetails';
+import { Download, Eye, Award } from 'lucide-react';
+import html2pdf from 'html2pdf.js';
 
-// Utility functions
+// Initialize Web3
 const initializeWeb3 = async () => {
     if (typeof window.ethereum === 'undefined') {
         alert('MetaMask is not installed. Please install MetaMask to proceed.');
@@ -32,17 +33,20 @@ const useForm = (initialState) => {
     return [formValues, setFormValues, handleChange];
 };
 
-// Component for template selection
+// Template Selector Component
 const TemplateSelector = ({ templates, selectedTemplate, handleTemplateChange }) => (
-    <div className="mb-4">
-        <label htmlFor="template" className="block text-sm font-medium text-gray-700">Select Template</label>
+    <div className="mb-6">
+        <label htmlFor="template" className="block text-sm font-medium text-gray-700 mb-2">
+            Certificate Template
+        </label>
         <select
-            id="template"
             value={selectedTemplate || ''}
-            onChange={handleTemplateChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={(e) => handleTemplateChange(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-md"
         >
-            <option value="">Choose a template</option>
+            <option value="" disabled>
+                Choose a template
+            </option>
             {Object.keys(templates).map((templateName) => (
                 <option key={templateName} value={templateName}>
                     {templateName.charAt(0).toUpperCase() + templateName.slice(1)}
@@ -52,21 +56,49 @@ const TemplateSelector = ({ templates, selectedTemplate, handleTemplateChange })
     </div>
 );
 
-// Component for rendering form fields
+// Form Fields Component
 const FormFields = ({ fields, formValues, handleChange }) => (
     <div className="space-y-4">
         {fields.map((field) => (
-            <input
-                key={field.name}
-                type={field.type}
-                name={field.name}
-                value={formValues[field.name]}
-                onChange={handleChange}
-                placeholder={field.placeholder}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-            />
+            <div key={field.name} className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                    {field.placeholder}
+                </label>
+                <input
+                    type={field.type}
+                    name={field.name}
+                    value={formValues[field.name]}
+                    onChange={handleChange}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    required
+                />
+            </div>
         ))}
+    </div>
+);
+
+// Certificate Preview Component
+const CertificatePreview = ({ pdfUrl, onDownload }) => (
+    <div className="mt-6 p-4 border rounded-lg bg-gray-50">
+        {pdfUrl && (
+            <div>
+                <iframe
+                    src={pdfUrl}
+                    width="100%"
+                    height="600px"
+                    style={{ border: 'none' }}
+                    title="Certificate PDF"
+                ></iframe>
+                <div className="mt-4 text-center">
+                    <button
+                        onClick={onDownload}
+                        className="py-2 px-4 bg-green-600 text-white rounded-md"
+                    >
+                        <Download className="h-5 w-5 mr-2" /> Download PDF
+                    </button>
+                </div>
+            </div>
+        )}
     </div>
 );
 
@@ -75,13 +107,13 @@ const IssueCertificate = () => {
     const [selectedTemplate, setSelectedTemplate] = useState(null);
     const [formValues, setFormValues, handleChange] = useForm({});
     const [certificateData, setCertificateData] = useState(null);
+    const [pdfUrl, setPdfUrl] = useState('');
 
-    const handleTemplateChange = (e) => {
-        const templateName = e.target.value;
+    const handleTemplateChange = (templateName) => {
         setSelectedTemplate(templateName);
         const template = templates[templateName] || [];
         const initialState = template.reduce((acc, field) => {
-            acc[field.name] = ''; // Initialize each field to an empty string
+            acc[field.name] = '';
             return acc;
         }, {});
         setFormValues(initialState);
@@ -103,23 +135,26 @@ const IssueCertificate = () => {
                 alert('Your account is not registered as an organisation. Please register it first.');
                 return;
             }
+
             const serverURL = import.meta.env.VITE_SERVER_URL;
-            const response = await fetch(`${serverURL}/certificates/issue`, { // Use backticks here
+            const response = await fetch(`${serverURL}/certificates/issue`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formValues),
             });
-
 
             if (!response.ok) throw new Error(await response.text());
 
             const { ipfsHash } = await response.json();
             const transaction = await contract.methods.storeCertificate(ipfsHash, userAccount).send({ from: userAccount });
 
-            alert(`Certificate stored on blockchain! Transaction Hash: ${transaction.transactionHash}`);
-
-            // Save certificate data for PDF generation
             setCertificateData({
+                ...formValues,
+                ipfsHash,
+                organisation: userAccount,
+            });
+
+            handleGenerateHTML({
                 ...formValues,
                 ipfsHash,
                 organisation: userAccount,
@@ -130,129 +165,98 @@ const IssueCertificate = () => {
         }
     };
 
-    const handleGeneratePDF = () => {
-        if (!certificateData) {
-            alert('No certificate data available to generate PDF.');
+    const handleGenerateHTML = (data) => {
+        if (!data) {
+            alert('No certificate data available to generate HTML.');
             return;
         }
 
-        const doc = new jsPDF();
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const pageHeight = doc.internal.pageSize.getHeight();
-
-        // Gradient-like background
-        const colors = [
-            [240, 248, 255], // Light blue
-            [173, 216, 230], // Sky blue
-            [255, 255, 255]  // White
-        ];
-
-        for (let i = 0; i < colors.length; i++) {
-            doc.setFillColor(...colors[i]);
-            doc.rect(0, (pageHeight / colors.length) * i, pageWidth, pageHeight / colors.length, 'F');
-        }
-
-        // Decorative border
-        doc.setDrawColor(0, 128, 255);
-        doc.setLineWidth(5);
-        doc.rect(15, 15, pageWidth - 30, pageHeight - 30);
-
-        // Title
-        doc.setFont('Times', 'bold');
-        doc.setFontSize(36);
-        doc.setTextColor(0, 51, 102);
-        doc.text('Certificate of Achievement', pageWidth / 2, 60, { align: 'center' });
-
-        // Subtitle
-        doc.setFont('Times', 'italic');
-        doc.setFontSize(20);
-        doc.setTextColor(50, 50, 50);
-        doc.text('Awarded for Excellence and Dedication', pageWidth / 2, 80, { align: 'center' });
-
-        // Add watermark
-        doc.setFontSize(60);
-        doc.setTextColor(200, 200, 200);
-        doc.text('DRAFT', pageWidth / 2, pageHeight / 2, { align: 'center', angle: 45 });
-
-        // Organisation Name
-        doc.setFont('Helvetica', 'normal');
-        doc.setFontSize(18);
-        doc.setTextColor(0, 51, 102);
-        doc.text(`Organisation: ${certificateData.organisation}`, 20, 110);
-
-        // IPFS hash
-        doc.setFontSize(14);
-        doc.setTextColor(80, 80, 80);
-        doc.text(`IPFS Hash: ${certificateData.ipfsHash}`, 20, 130);
-
-        // Table-like section for other fields
-        const fieldStartY = 150;
-        const fieldPadding = 5;
-        const fieldHeight = 10;
-
-        Object.entries(certificateData).forEach(([key, value], index) => {
-            if (key !== 'ipfsHash' && key !== 'organisation') {
-                const y = fieldStartY + index * (fieldHeight + fieldPadding);
-                // Row background color
-                doc.setFillColor(index % 2 === 0 ? 220 : 240, 240, 255);
-                doc.rect(15, y - fieldPadding / 2, pageWidth - 30, fieldHeight + fieldPadding / 2, 'F');
-
-                // Text
-                doc.setTextColor(0);
-                doc.setFontSize(12);
-                doc.text(`${key.charAt(0).toUpperCase() + key.slice(1)}:`, 25, y + (fieldHeight / 2));
-                doc.text(value.toString(), pageWidth / 2, y + (fieldHeight / 2), { align: 'left' });
+        // Create the certificate HTML content
+        const certificateHTML = `
+            <div style="border: 2px solid #006f9f; padding: 20px; width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+                <h2 style="text-align: center; color: #006f9f;">Certificate of Achievement</h2>
+                <hr style="border-top: 1px solid #006f9f; margin-bottom: 20px;">
+                <p><strong>Issuer Organisation's Address:</strong> ${data.organisation}</p>
+                <p><strong>IPFS Hash:</strong> ${data.ipfsHash}</p>
+                <h3 style="text-align: center; color: #006f9f;">Certificate Data:</h3>
+                ${Object.keys(data).map((key) => {
+            if (key !== 'organisation' && key !== 'ipfsHash') {
+                return `<p><strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong> ${data[key]}</p>`;
             }
-        });
+            return '';
+        }).join('')}
+                <p style="text-align: center; font-size: 12px; color: gray;">This certificate is verified on blockchain.</p>
+            </div>
+        `;
 
-        // Footer
-        doc.setFontSize(12);
-        doc.setTextColor(80, 80, 80);
-        doc.text(
-            'This certificate is digitally signed and secured using blockchain technology.',
-            pageWidth / 2,
-            pageHeight - 30,
-            { align: 'center' }
-        );
+        // Generate PDF from HTML content
+        const element = document.createElement('div');
+        element.innerHTML = certificateHTML;
 
-        // Save the PDF
-        doc.save('certificate.pdf');
+        const options = {
+            margin: 0.5,
+            filename: 'certificate.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' },
+            html2pdf: { from: element },
+        };
+
+        html2pdf()
+            .from(element)
+            .set(options)
+            .toPdf()
+            .get('pdf')
+            .then((pdf) => {
+                const pdfBlob = pdf.output('blob');
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+                setPdfUrl(pdfUrl);
+            });
     };
 
-
-
+    const handleDownload = () => {
+        if (pdfUrl) {
+            const link = document.createElement('a');
+            link.href = pdfUrl;
+            link.download = 'certificate.pdf';
+            link.click();
+        }
+    };
 
     return (
-        <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
-            <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">Issue Certificate</h2>
-            <TemplateSelector
-                templates={templates}
-                selectedTemplate={selectedTemplate}
-                handleTemplateChange={handleTemplateChange}
-            />
-            {selectedTemplate && (
-                <>
-                    <FormFields
-                        fields={templates[selectedTemplate]}
-                        formValues={formValues}
-                        handleChange={handleChange}
-                    />
-                    <button
-                        onClick={handleIssueCertificate}
-                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
-                    >
-                        Issue Certificate
-                    </button>
-                    {certificateData && (
-                        <button
-                            onClick={handleGeneratePDF}
-                            className="w-full mt-4 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1"
-                        >
-                            Download Certificate PDF
-                        </button>
-                    )}
-                </>
-            )}
+        <div className="max-w-4xl mx-auto p-6">
+            <div className="border rounded-lg p-6">
+                <div className="flex items-center gap-2">
+                    <Award className="h-6 w-6" />
+                    <h2 className="text-xl font-semibold">Issue Certificate</h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div className="space-y-6">
+                        <TemplateSelector
+                            templates={templates}
+                            selectedTemplate={selectedTemplate}
+                            handleTemplateChange={handleTemplateChange}
+                        />
+                        {selectedTemplate && (
+                            <>
+                                <FormFields
+                                    fields={templates[selectedTemplate]}
+                                    formValues={formValues}
+                                    handleChange={handleChange}
+                                />
+                                <button
+                                    onClick={handleIssueCertificate}
+                                    className="w-full py-2 px-4 bg-blue-600 text-white rounded-md"
+                                >
+                                    Issue Certificate
+                                </button>
+                            </>
+                        )}
+                    </div>
+
+                    {pdfUrl && <CertificatePreview pdfUrl={pdfUrl} onDownload={handleDownload} />}
+                </div>
+            </div>
         </div>
     );
 };
