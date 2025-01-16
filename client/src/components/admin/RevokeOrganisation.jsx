@@ -43,7 +43,7 @@ const RevokeOrganisation = () => {
             setMessage(
                 `Organisation revoked from the blockchain! Transaction Hash: ${transaction.transactionHash}`
             );
-            setOrgAddress(''); // Reset the input field after successful revocation
+            setOrgAddress(''); 
         } catch (error) {
             console.error('Error:', error.message);
             setMessage(`Error: ${error.message}`);

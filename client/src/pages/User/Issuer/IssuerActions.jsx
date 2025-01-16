@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
-import { FaCertificate, FaSearch, FaBan } from 'react-icons/fa'; // Import icons
+import { FaCertificate, FaSearch, FaBan } from 'react-icons/fa'; 
 import IssueCertificate from '../../../components/user/issuer/IssueCertificate';
 import CheckCertificate from '../../../components/user/issuer/CheckCertificate';
 import RevokeCertificate from '../../../components/user/issuer/RevokeCertificate';
-import TrueCert_logo from '../../../assets/TrueCert_logo.svg'; // Import the logo
-import { useNavigate } from 'react-router-dom'; // To handle navigation
+import TrueCert_logo from '../../../assets/TrueCert_logo.svg'; 
+import { useNavigate } from 'react-router-dom'; 
 
 function IssuerActions() {
   const [activeComponent, setActiveComponent] = useState(null);
-  const navigate = useNavigate(); // Navigate function for logout
+  const navigate = useNavigate(); 
 
-  // Function to handle logout
+  
   const handleLogout = () => {
-    // Logic for logging out (could clear user data, etc.)
-    navigate('/user/issuer/login'); // Navigate to the login page
+    
+    navigate('/user/issuer/login'); 
   };
 
   return (
@@ -25,7 +25,7 @@ function IssuerActions() {
             {/* TrueCert Logo */}
             <div className="flex items-center space-x-3">
               <img
-                src={TrueCert_logo} // Use the imported logo here
+                src={TrueCert_logo} 
                 alt="TrueCert Logo"
                 className="h-20 w-20 rounded-full object-cover"
               />

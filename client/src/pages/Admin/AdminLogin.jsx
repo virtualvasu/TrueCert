@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Web3 from 'web3';
-import { ArrowRight } from 'lucide-react'; // Importing the icon from lucide-react
+import { ArrowRight } from 'lucide-react'; 
 
-const adminAddress = import.meta.env.VITE_ADMIN_PUBLIC_ADDRESS; // Admin's public address
+const adminAddress = import.meta.env.VITE_ADMIN_PUBLIC_ADDRESS; 
 
 const AdminLogin = () => {
   const [userAccount, setUserAccount] = useState('');
@@ -11,7 +11,13 @@ const AdminLogin = () => {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
-  // Initialize Web3 and connect MetaMask
+const handleRedirect = () => {
+
+  navigate('/admin/login')
+  setMessage('');
+};
+
+
   const connectMetaMask = async () => {
     try {
       if (typeof window.ethereum === 'undefined') {
@@ -31,13 +37,13 @@ const AdminLogin = () => {
       setUserAccount(connectedAccount);
       setIsConnected(true);
 
-      // Check if the connected account is the admin
+      
       if (connectedAccount.toLowerCase() === adminAddress.toLowerCase()) {
         setMessage('Login successful! Redirecting to admin home page...');
-        setTimeout(() => navigate('/admin/home'), 2000); // Redirect to Admin Home Page
+        setTimeout(() => navigate('/admin/home'), 1000); 
       } else {
         setMessage('You are not authorized to access the admin page.');
-        setIsConnected(false); // Allow retry
+        setIsConnected(false); 
       }
     } catch (err) {
       console.error(err.message);
@@ -91,7 +97,7 @@ const AdminLogin = () => {
           {!isConnected && message.includes('not authorized') && (
             <div className="text-center mt-4">
               <button
-                onClick={connectMetaMask}
+                onClick={handleRedirect}
                 className="bg-gradient-to-r from-red-500 to-red-600 text-white py-2 px-4 rounded-lg shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-300"
               >
                 Try Again

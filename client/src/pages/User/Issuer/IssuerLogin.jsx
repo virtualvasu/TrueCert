@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import Web3 from 'web3';
 import { contractAddress, contractABI } from '../../../assets/contractDetails';
-import { useNavigate } from 'react-router-dom'; // Import navigate from react-router-dom
-import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/solid'; // Icons for success and error
+import { useNavigate } from 'react-router-dom';
+import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/solid';
 
 const IssuerLogin = () => {
   const [userAccount, setUserAccount] = useState(null);
   const [error, setError] = useState('');
   const [orgExists, setOrgExists] = useState(null);
-  const navigate = useNavigate(); // Initialize navigate function
+  const navigate = useNavigate();
 
-  // Initialize Web3 and request MetaMask connection
+
   const initializeWeb3 = async () => {
     try {
       if (typeof window.ethereum === 'undefined') {
@@ -33,20 +33,20 @@ const IssuerLogin = () => {
     }
   };
 
-  // Function to check if the organization is registered using the connected MetaMask account
+
   const checkOrganisation = async (web3, userAccount) => {
     try {
       const contract = new web3.eth.Contract(contractABI, contractAddress);
       const organisationExists = await contract.methods.checkOrganisationExistence(userAccount).call();
-      
+
       console.log('Organisation Address:', userAccount);
       console.log('Organisation exists:', organisationExists);
 
       setOrgExists(organisationExists);
 
-      // Redirect if organisation exists
       if (organisationExists) {
         // No alert, instead show a button for the user to click
+        
       }
     } catch (error) {
       console.error("Error:", error.message);
@@ -54,16 +54,16 @@ const IssuerLogin = () => {
     }
   };
 
-  // Redirect to Issuer Home Page
+
   const handleRedirect = () => {
-    navigate('/user/issuer/home'); // Redirect to Issuer Home Page
+    navigate('/user/issuer/home');
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
       <div className="bg-white p-10 rounded-3xl shadow-2xl text-center max-w-md w-full">
         <h2 className="text-3xl font-extrabold text-gray-800 mb-8">Issuer Login</h2>
-        
+
         <button
           onClick={initializeWeb3}
           className="w-full bg-blue-600 text-white py-3 px-6 rounded-xl shadow-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105"
