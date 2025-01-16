@@ -87,7 +87,7 @@ const IssuerLogin = () => {
             ) : (
               <div className="flex items-center justify-center bg-red-100 p-4 rounded-lg shadow-md">
                 <XCircleIcon className="w-6 h-6 text-red-600 mr-3" />
-                <p className="text-red-600 font-medium">Your organization is not registered on <b>TrueCert</b>.</p>
+                <p className="text-red-600 font-medium">Your organization is not registered as an issuer on <b>TrueCert</b>.</p>
               </div>
             )}
           </div>

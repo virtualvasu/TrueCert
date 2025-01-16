@@ -8,14 +8,14 @@ const adminAddress = import.meta.env.VITE_ADMIN_PUBLIC_ADDRESS; // Admin's publi
 const AdminLogin = () => {
   const [userAccount, setUserAccount] = useState('');
   const [isConnected, setIsConnected] = useState(false);
-  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
   // Initialize Web3 and connect MetaMask
   const connectMetaMask = async () => {
     try {
       if (typeof window.ethereum === 'undefined') {
-        alert('MetaMask is not installed. Please install MetaMask to proceed.');
+        setMessage('MetaMask is not installed. Please install MetaMask to proceed.');
         return;
       }
 
@@ -23,7 +23,7 @@ const AdminLogin = () => {
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
       if (!accounts || accounts.length === 0) {
-        setError('No MetaMask account connected.');
+        setMessage('No MetaMask account connected. Please try again.');
         return;
       }
 
@@ -33,14 +33,15 @@ const AdminLogin = () => {
 
       // Check if the connected account is the admin
       if (connectedAccount.toLowerCase() === adminAddress.toLowerCase()) {
-        alert('Login successful! Redirecting to admin home page...');
-        navigate('/admin/home'); // Redirect to Admin Home Page
+        setMessage('Login successful! Redirecting to admin home page...');
+        setTimeout(() => navigate('/admin/home'), 2000); // Redirect to Admin Home Page
       } else {
-        alert('You are not authorized to access the admin page.');
+        setMessage('You are not authorized to access the admin page.');
+        setIsConnected(false); // Allow retry
       }
     } catch (err) {
       console.error(err.message);
-      setError(`Error: ${err.message}`);
+      setMessage(`Error: ${err.message}`);
     }
   };
 
@@ -62,6 +63,16 @@ const AdminLogin = () => {
         <div className="p-8">
           <h2 className="text-2xl font-bold text-center text-white mb-4">Admin Login</h2>
 
+          {message && (
+            <p
+              className={`text-center mb-4 font-medium ${
+                message.includes('successful') ? 'text-green-500' : 'text-red-500'
+              }`}
+            >
+              {message}
+            </p>
+          )}
+
           {isConnected ? (
             <div className="text-center">
               <p className="text-green-600 font-medium mb-4">
@@ -69,15 +80,23 @@ const AdminLogin = () => {
               </p>
             </div>
           ) : (
-            <>
-              {error && <p className="text-red-600 mb-4 text-center">{error}</p>}
+            <button
+              onClick={connectMetaMask}
+              className="w-full bg-gradient-to-r from-indigo-500 to-indigo-600 text-white py-3 px-6 rounded-xl shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] text-lg font-semibold"
+            >
+              Connect MetaMask
+            </button>
+          )}
+
+          {!isConnected && message.includes('not authorized') && (
+            <div className="text-center mt-4">
               <button
                 onClick={connectMetaMask}
-                className="w-full bg-gradient-to-r from-indigo-500 to-indigo-600 text-white py-3 px-6 rounded-xl shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] text-lg font-semibold"
+                className="bg-gradient-to-r from-red-500 to-red-600 text-white py-2 px-4 rounded-lg shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all duration-300"
               >
-                Connect MetaMask
+                Try Again
               </button>
-            </>
+            </div>
           )}
         </div>
       </div>
