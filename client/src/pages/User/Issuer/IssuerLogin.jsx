@@ -8,8 +8,11 @@ const IssuerLogin = () => {
   const [userAccount, setUserAccount] = useState(null);
   const [error, setError] = useState('');
   const [orgExists, setOrgExists] = useState(null);
+  const [isRequesting, setIsRequesting] = useState(false);
+  const [issuerAddress, setIssuerAddress] = useState('');
+  const [issuerName, setIssuerName] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');  // New state for success message
   const navigate = useNavigate();
-
 
   const initializeWeb3 = async () => {
     try {
@@ -33,7 +36,6 @@ const IssuerLogin = () => {
     }
   };
 
-
   const checkOrganisation = async (web3, userAccount) => {
     try {
       const contract = new web3.eth.Contract(contractABI, contractAddress);
@@ -43,17 +45,46 @@ const IssuerLogin = () => {
       console.log('Organisation exists:', organisationExists);
 
       setOrgExists(organisationExists);
-
-      if (organisationExists) {
-        // No alert, instead show a button for the user to click
-        
-      }
     } catch (error) {
       console.error("Error:", error.message);
       setError(`Error: ${error.message}`);
     }
   };
 
+  const handleRequestRegistration = async () => {
+    setIsRequesting(true);
+    try {
+      // Prepare email data
+      const registrationData = {
+        recipient: import.meta.env.VITE_RECIEVER_EMAIL,
+        subject: 'TrueCert issuer registration request',
+        body: `Issuer's blockchain address: ${issuerAddress}\nIssuer's name: ${issuerName}`,
+      };
+
+      // Send registration request to the backend
+      const serverURL = import.meta.env.VITE_SERVER_URL;
+      const response = await fetch(`${serverURL}/registration/fromissuer`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(registrationData),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        console.log('Registration request sent successfully');
+        setSuccessMessage('Your registration request has been sent, wait for admin\'s approval.');
+      } else {
+        setError('Failed to send registration request. Please try again.');
+      }
+    } catch (err) {
+      console.error('Error sending registration request:', err);
+      setError('Failed to send registration request. Please try again.');
+    } finally {
+      setIsRequesting(false);
+    }
+  };
 
   const handleRedirect = () => {
     navigate('/user/issuer/home');
@@ -101,6 +132,53 @@ const IssuerLogin = () => {
             >
               Go to Issuer Home
             </button>
+          </div>
+        )}
+
+        {orgExists === false && (
+          <div className="mt-6">
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              handleRequestRegistration();
+            }}>
+              <div className="mb-4">
+                <label htmlFor="issuerAddress" className="block text-sm font-medium text-gray-700">Issuer's Blockchain Address</label>
+                <input
+                  id="issuerAddress"
+                  type="text"
+                  value={issuerAddress}
+                  onChange={(e) => setIssuerAddress(e.target.value)}
+                  required
+                  className="mt-2 p-2 w-full border border-gray-300 rounded-lg"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="issuerName" className="block text-sm font-medium text-gray-700">Issuer's Name</label>
+                <input
+                  id="issuerName"
+                  type="text"
+                  value={issuerName}
+                  onChange={(e) => setIssuerName(e.target.value)}
+                  required
+                  className="mt-2 p-2 w-full border border-gray-300 rounded-lg"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-yellow-600 text-white py-3 px-6 rounded-xl shadow-xl hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105"
+                disabled={isRequesting}
+              >
+                {isRequesting ? 'Requesting...' : 'Request Registration'}
+              </button>
+            </form>
+          </div>
+        )}
+
+        {successMessage && (
+          <div className="mt-6 text-center text-green-600">
+            <p>{successMessage}</p>
           </div>
         )}
 
