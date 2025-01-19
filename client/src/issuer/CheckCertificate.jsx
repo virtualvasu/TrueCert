@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
 import Web3 from 'web3';
 import { contractAddress, contractABI } from '../../../assets/contractDetails';
-import { FaCheckCircle, FaExclamationCircle } from 'react-icons/fa'; // Importing icons
+import InputField from '../components/shared/InputField';
+import ActionButton from '../components/shared/ActionButton';
+import StatusMessage from '../components/shared/StatusMessage';
 
 const CheckCertificate = () => {
   const [ipfsHash, setIpfsHash] = useState('');
   const [issuerAddress, setIssuerAddress] = useState('');
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState(null); // For showing the status message
+  const [status, setStatus] = useState(null);
 
-  // Initialize Web3 with a provider
-  const web3 = new Web3(new Web3.providers.HttpProvider(import.meta.env.VITE_INFURA_URL_SEPOLIA)); // e.g., Infura or Alchemy URL
+  const web3 = new Web3(new Web3.providers.HttpProvider(import.meta.env.VITE_INFURA_URL_SEPOLIA));
 
   const handleCheckCertificate = async () => {
     try {
       setLoading(true);
-      setStatus(null); // Reset status before checking
+      setStatus(null);
 
       if (!ipfsHash || !/^[a-zA-Z0-9]{46}$/.test(ipfsHash)) {
         setStatus({ message: 'Please enter a valid IPFS hash.', success: false });
@@ -29,16 +30,12 @@ const CheckCertificate = () => {
 
       const contract = new web3.eth.Contract(contractABI, contractAddress);
 
-      console.log("Interacting with contract...");
+      const exists = await contract.methods.checkExistence(ipfsHash, issuerAddress).call();
 
-      // Call the smart contract function with both IPFS hash and issuer address
-      const exists = await contract.methods
-        .checkExistence(ipfsHash, issuerAddress)
-        .call();
-
-      console.log('Certificate exists:', exists);
       setStatus({
-        message: exists ? 'Certificate exists on the blockchain.' : 'Certificate does not exist or is issued by some other organisation.',
+        message: exists
+          ? 'Certificate exists on the blockchain.'
+          : 'Certificate does not exist or is issued by some other organisation.',
         success: exists,
       });
     } catch (error) {
@@ -55,66 +52,23 @@ const CheckCertificate = () => {
         Verify Certificate
       </h2>
       <div className="space-y-4">
-        {/* Input for IPFS Hash */}
-        <div className="relative">
-          <input
-            type="text"
-            value={ipfsHash}
-            onChange={(e) => setIpfsHash(e.target.value)}
-            placeholder="Enter IPFS Hash"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-          <div className="absolute top-0 right-2 text-indigo-500">
-            <FaCheckCircle />
-          </div>
-        </div>
-
-        {/* Input for Issuer Address */}
-        <div className="relative">
-          <input
-            type="text"
-            value={issuerAddress}
-            onChange={(e) => setIssuerAddress(e.target.value)}
-            placeholder="Enter Issuer Organization Address"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-          <div className="absolute top-0 right-2 text-indigo-500">
-            <FaCheckCircle />
-          </div>
-        </div>
-
-        {/* Action Button */}
-        <button
-          onClick={handleCheckCertificate}
-          className={`w-full py-2 px-4 rounded-lg text-white transition duration-300 ${
-            loading
-              ? 'bg-indigo-300 cursor-not-allowed'
-              : 'bg-indigo-600 hover:bg-indigo-700'
-          }`}
-          disabled={loading}
-        >
-          {loading ? 'Checking...' : 'Check Certificate'}
-        </button>
+        <InputField
+          value={ipfsHash}
+          onChange={(e) => setIpfsHash(e.target.value)}
+          placeholder="Enter IPFS Hash"
+          isValid={/^[a-zA-Z0-9]{46}$/.test(ipfsHash)}
+        />
+        <InputField
+          value={issuerAddress}
+          onChange={(e) => setIssuerAddress(e.target.value)}
+          placeholder="Enter Issuer Organization Address"
+          isValid={web3.utils.isAddress(issuerAddress)}
+        />
+        <ActionButton onClick={handleCheckCertificate} loading={loading} disabled={loading}>
+          Check Certificate
+        </ActionButton>
       </div>
-
-      {/* Status Message */}
-      {status && (
-        <div
-          className={`mt-6 p-4 rounded-lg ${
-            status.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-          }`}
-        >
-          <div className="flex items-center">
-            {status.success ? (
-              <FaCheckCircle className="mr-2 text-green-500" />
-            ) : (
-              <FaExclamationCircle className="mr-2 text-red-500" />
-            )}
-            <p className="text-lg">{status.message}</p>
-          </div>
-        </div>
-      )}
-
+      {status && <StatusMessage message={status.message} success={status.success} />}
       <p className="text-gray-600 text-sm mt-4 text-center">
         Enter the details carefully. Ensure you have an Ethereum node accessible.
       </p>
