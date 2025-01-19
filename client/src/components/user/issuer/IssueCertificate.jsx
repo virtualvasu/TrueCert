@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import Web3 from 'web3';
 import { template1, template2 } from '../../../assets/issuer/docTemplates/templates';
 import { contractAddress, contractABI } from '../../../assets/contractDetails';
-import { Download, Award } from 'lucide-react';
-import jsPDF from 'jspdf';
+import { Download, Eye, Award } from 'lucide-react';
+import html2pdf from 'html2pdf.js';
 
 // Initialize Web3
 const initializeWeb3 = async () => {
@@ -106,8 +106,8 @@ const IssueCertificate = () => {
     const templates = { template1, template2 };
     const [selectedTemplate, setSelectedTemplate] = useState(null);
     const [formValues, setFormValues, handleChange] = useForm({});
+    const [certificateData, setCertificateData] = useState(null);
     const [pdfUrl, setPdfUrl] = useState('');
-    const [showConfirmation, setShowConfirmation] = useState(false);
 
     const handleTemplateChange = (templateName) => {
         setSelectedTemplate(templateName);
@@ -119,20 +119,11 @@ const IssueCertificate = () => {
         setFormValues(initialState);
     };
 
-    const handleConfirm = async (confirm) => {
-        if (confirm) {
-            await handleIssueCertificate();
-        } else {
-            setFormValues({});
-            setShowConfirmation(false);
-        }
-    };
-
     const handleIssueCertificate = async () => {
         try {
             const { web3, userAccount } = await initializeWeb3();
 
-            if (Object.values(formValues).some((value) => value === '')) {
+            if (Object.values(formValues).includes('')) {
                 alert('Please fill in all fields.');
                 return;
             }
@@ -145,10 +136,23 @@ const IssueCertificate = () => {
                 return;
             }
 
-            // Simulated server response for IPFS hash
-            const ipfsHash = 'QmExampleHash123456789';
+            const serverURL = import.meta.env.VITE_SERVER_URL;
+            const response = await fetch(`${serverURL}/certificates/issue`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formValues),
+            });
 
-            await contract.methods.storeCertificate(ipfsHash, userAccount).send({ from: userAccount });
+            if (!response.ok) throw new Error(await response.text());
+
+            const { ipfsHash } = await response.json();
+            const transaction = await contract.methods.storeCertificate(ipfsHash, userAccount).send({ from: userAccount });
+
+            setCertificateData({
+                ...formValues,
+                ipfsHash,
+                organisation: userAccount,
+            });
 
             handleGenerateHTML({
                 ...formValues,
@@ -167,24 +171,47 @@ const IssueCertificate = () => {
             return;
         }
 
-        const doc = new jsPDF('landscape', 'px', 'a4');
-        doc.setFontSize(22);
-        doc.text('Certificate of Achievement', doc.internal.pageSize.getWidth() / 2, 60, { align: 'center' });
-
-        doc.setFontSize(12);
-        doc.text(`Issuer Organisation's Address: ${data.organisation}`, 20, 100);
-        doc.text(`IPFS Hash: ${data.ipfsHash}`, 20, 120);
-
-        let yPosition = 160;
-        Object.keys(data).forEach((key) => {
+        // Create the certificate HTML content
+        const certificateHTML = `
+            <div style="border: 2px solid #006f9f; padding: 20px; width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+                <h2 style="text-align: center; color: #006f9f;">Certificate of Achievement</h2>
+                <hr style="border-top: 1px solid #006f9f; margin-bottom: 20px;">
+                <p><strong>Issuer Organisation's Address:</strong> ${data.organisation}</p>
+                <p><strong>IPFS Hash:</strong> ${data.ipfsHash}</p>
+                <h3 style="text-align: center; color: #006f9f;">Certificate Data:</h3>
+                ${Object.keys(data).map((key) => {
             if (key !== 'organisation' && key !== 'ipfsHash') {
-                doc.text(`${key}: ${data[key]}`, 20, yPosition);
-                yPosition += 20;
+                return `<p><strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong> ${data[key]}</p>`;
             }
-        });
+            return '';
+        }).join('')}
+                <p style="text-align: center; font-size: 12px; color: gray;">This certificate is verified on blockchain.</p>
+            </div>
+        `;
 
-        const pdfBlob = doc.output('blob');
-        setPdfUrl(URL.createObjectURL(pdfBlob));
+        // Generate PDF from HTML content
+        const element = document.createElement('div');
+        element.innerHTML = certificateHTML;
+
+        const options = {
+            margin: 0.5,
+            filename: 'certificate.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' },
+            html2pdf: { from: element },
+        };
+
+        html2pdf()
+            .from(element)
+            .set(options)
+            .toPdf()
+            .get('pdf')
+            .then((pdf) => {
+                const pdfBlob = pdf.output('blob');
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+                setPdfUrl(pdfUrl);
+            });
     };
 
     const handleDownload = () => {
@@ -204,13 +231,13 @@ const IssueCertificate = () => {
                     <h2 className="text-xl font-semibold">Issue Certificate</h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                   { !pdfUrl && <div className="space-y-6">
-                        {<TemplateSelector
+                    <div className="space-y-6">
+                        <TemplateSelector
                             templates={templates}
                             selectedTemplate={selectedTemplate}
                             handleTemplateChange={handleTemplateChange}
-                        />}
-                        {selectedTemplate && !showConfirmation && (
+                        />
+                        {selectedTemplate && (
                             <>
                                 <FormFields
                                     fields={templates[selectedTemplate]}
@@ -218,38 +245,15 @@ const IssueCertificate = () => {
                                     handleChange={handleChange}
                                 />
                                 <button
-                                    onClick={() => setShowConfirmation(true)}
+                                    onClick={handleIssueCertificate}
                                     className="w-full py-2 px-4 bg-blue-600 text-white rounded-md"
                                 >
                                     Issue Certificate
                                 </button>
                             </>
                         )}
-                        {showConfirmation && (
-                            <div className="space-y-4">
-                                <h3 className="text-lg font-semibold">Confirm Details</h3>
-                                {Object.entries(formValues).map(([key, value]) => (
-                                    <p key={key}>
-                                        <strong>{key.charAt(0).toUpperCase() + key.slice(1)}:</strong> {value}
-                                    </p>
-                                ))}
-                                <div className="flex gap-4">
-                                    <button
-                                        onClick={() => handleConfirm(true)}
-                                        className="py-2 px-4 bg-green-600 text-white rounded-md"
-                                    >
-                                        Confirm
-                                    </button>
-                                    <button
-                                        onClick={() => handleConfirm(false)}
-                                        className="py-2 px-4 bg-red-600 text-white rounded-md"
-                                    >
-                                        Edit
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </div>}
+                    </div>
+
                     {pdfUrl && <CertificatePreview pdfUrl={pdfUrl} onDownload={handleDownload} />}
                 </div>
             </div>

@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const port = process.env.PORT || 5173;
+const port = process.env.PORT || 3000;
 //transporter setup
 
 const transporter = nodemailer.createTransport({
