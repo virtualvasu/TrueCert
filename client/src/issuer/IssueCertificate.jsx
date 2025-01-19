@@ -3,8 +3,7 @@ import Web3 from 'web3';
 import { template1, template2 } from '../../../assets/issuer/docTemplates/templates';
 import { contractAddress, contractABI } from '../../../assets/contractDetails';
 import { Download, Eye, Award } from 'lucide-react';
-import { jsPDF } from "jspdf";
-
+import html2pdf from 'html2pdf.js';
 
 // Initialize Web3
 const initializeWeb3 = async () => {
@@ -85,7 +84,7 @@ const CertificatePreview = ({ pdfUrl, onDownload }) => (
             <div>
                 <iframe
                     src={pdfUrl}
-                    width="200%"
+                    width="100%"
                     height="600px"
                     style={{ border: 'none' }}
                     title="Certificate PDF"
@@ -172,55 +171,48 @@ const IssueCertificate = () => {
             return;
         }
 
-        // Create the certificate HTML content (as before)
-        // const certificateHTML = `
-        //     <div style="border: 2px solid #006f9f; padding: 20px; width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
-        //         <h2 style="text-align: center; color: #006f9f;">Certificate of Achievement</h2>
-        //         <hr style="border-top: 1px solid #006f9f; margin-bottom: 20px;">
-        //         <p><strong>Issuer Organisation's Address:</strong> ${data.organisation}</p>
-        //         <p><strong>IPFS Hash:</strong> ${data.ipfsHash}</p>
-        //         <h3 style="text-align: center; color: #006f9f;">Certificate Data:</h3>
-        //         ${Object.keys(data).map((key) => {
-        //     if (key !== 'organisation' && key !== 'ipfsHash') {
-        //         return `<p><strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong> ${data[key]}</p>`;
-        //     }
-        //     return '';
-        // }).join('')}
-        //         <p style="text-align: center; font-size: 12px; color: gray;">This certificate is verified on blockchain.</p>
-        //     </div>
-        // `;
-
-        // Use jsPDF to generate a selectable text PDF
-        const doc = new jsPDF();
-
-        // Set font and size for the PDF content
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(12);
-
-        // Add text to the PDF
-        doc.text('Certificate of Achievement', 20, 30);
-        doc.text(`Issuer Organisation's Address: ${data.organisation}`, 20, 40);
-        doc.text(`IPFS Hash: ${data.ipfsHash}`, 20, 50);
-        doc.text('Certificate Data:', 20, 60);
-
-        let yPosition = 70; // starting y position for certificate data
-
-        // Loop through the data fields and add them as text
-        Object.keys(data).forEach((key) => {
+        // Create the certificate HTML content
+        const certificateHTML = `
+            <div style="border: 2px solid #006f9f; padding: 20px; width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+                <h2 style="text-align: center; color: #006f9f;">Certificate of Achievement</h2>
+                <hr style="border-top: 1px solid #006f9f; margin-bottom: 20px;">
+                <p><strong>Issuer Organisation's Address:</strong> ${data.organisation}</p>
+                <p><strong>IPFS Hash:</strong> ${data.ipfsHash}</p>
+                <h3 style="text-align: center; color: #006f9f;">Certificate Data:</h3>
+                ${Object.keys(data).map((key) => {
             if (key !== 'organisation' && key !== 'ipfsHash') {
-                doc.text(`${key.charAt(0).toUpperCase() + key.slice(1)}: ${data[key]}`, 20, yPosition);
-                yPosition += 10; // Move down for the next field
+                return `<p><strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong> ${data[key]}</p>`;
             }
-        });
+            return '';
+        }).join('')}
+                <p style="text-align: center; font-size: 12px; color: gray;">This certificate is verified on blockchain.</p>
+            </div>
+        `;
 
-        doc.text('This certificate is verified on blockchain.', 20, yPosition + 10);
+        // Generate PDF from HTML content
+        const element = document.createElement('div');
+        element.innerHTML = certificateHTML;
 
-        // Generate the PDF and make it available for download
-        const pdfBlob = doc.output('blob');
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-        setPdfUrl(pdfUrl);
+        const options = {
+            margin: 0.5,
+            filename: 'certificate.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' },
+            html2pdf: { from: element },
+        };
+
+        html2pdf()
+            .from(element)
+            .set(options)
+            .toPdf()
+            .get('pdf')
+            .then((pdf) => {
+                const pdfBlob = pdf.output('blob');
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+                setPdfUrl(pdfUrl);
+            });
     };
-
 
     const handleDownload = () => {
         if (pdfUrl) {
@@ -239,7 +231,6 @@ const IssueCertificate = () => {
                     <h2 className="text-xl font-semibold">Issue Certificate</h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    {!pdfUrl && (
                     <div className="space-y-6">
                         <TemplateSelector
                             templates={templates}
@@ -261,7 +252,7 @@ const IssueCertificate = () => {
                                 </button>
                             </>
                         )}
-                    </div>)}
+                    </div>
 
                     {pdfUrl && <CertificatePreview pdfUrl={pdfUrl} onDownload={handleDownload} />}
                 </div>
