@@ -7,7 +7,7 @@ const CertificatePreview = ({ pdfUrl, onDownload }) => (
             <div>
                 <iframe
                     src={pdfUrl}
-                    width="100%"
+                    width="200%"
                     height="600px"
                     style={{ border: 'none' }}
                     title="Certificate PDF"

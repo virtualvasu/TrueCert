@@ -1,35 +1,21 @@
 import React, { useState } from 'react';
-import Web3 from 'web3';
-
-import {contractAddress, contractABI} from '../../../assets/contractDetails';
+import { contractAddress, contractABI } from '../../../assets/contractDetails';
+import { initializeWeb3, revokeCertificate } from '../../../utils/web3Utils';
 
 const RevokeCertificate = () => {
     const [revokeIpfsHash, setRevokeIpfsHash] = useState('');
 
-    async function initializeWeb3() {
-        if (typeof window.ethereum === 'undefined') {
-            alert('MetaMask is not installed. Please install MetaMask to proceed.');
-            throw new Error('MetaMask not found.');
-        }
-        const web3 = new Web3(window.ethereum);
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        if (!accounts || accounts.length === 0) {
-            alert('MetaMask is not connected. Please connect your account.');
-            throw new Error('No MetaMask account connected.');
-        }
-        return { web3, userAccount: accounts[0] };
-    }
-
     const handleRevokeCertificate = async () => {
         try {
             const { web3, userAccount } = await initializeWeb3();
-            if (!revokeIpfsHash) {
-                alert('Please enter an IPFS hash.');
-                return;
-            }
-            const contract = new web3.eth.Contract(contractABI, contractAddress);
-            const transaction = await contract.methods.revokeCertificate(revokeIpfsHash).send({ from: userAccount });
-            alert(`Certificate revoked! Transaction Hash: ${transaction.transactionHash}`);
+            const transactionHash = await revokeCertificate(
+                web3,
+                contractABI,
+                contractAddress,
+                revokeIpfsHash,
+                userAccount
+            );
+            alert(`Certificate revoked! Transaction Hash: ${transactionHash}`);
         } catch (error) {
             console.error('Error:', error.message);
             alert(`Error: ${error.message}`);
