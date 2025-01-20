@@ -1,37 +1,40 @@
-import React, { useState } from 'react';
-import Web3 from 'web3';
-import { contractAddress, contractABI } from '../../../assets/contractDetails';
-import { useNavigate } from 'react-router-dom';
-import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/solid';
+import React, { useState } from "react";
+import Web3 from "web3";
+import { contractAddress, contractABI } from "../../../assets/contractDetails";
+import { useNavigate } from "react-router-dom";
+import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/solid";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const IssuerLogin = () => {
   const [userAccount, setUserAccount] = useState(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [orgExists, setOrgExists] = useState(null);
   const [isRequesting, setIsRequesting] = useState(false);
-  const [issuerAddress, setIssuerAddress] = useState('');
-  const [issuerName, setIssuerName] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');  // New state for success message
+  const [issuerAddress, setIssuerAddress] = useState("");
+  const [issuerName, setIssuerName] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
 
   const initializeWeb3 = async () => {
     try {
-      if (typeof window.ethereum === 'undefined') {
-        setError('MetaMask is not installed. Please install MetaMask to proceed.');
+      if (typeof window.ethereum === "undefined") {
+        setError("MetaMask is not installed. Please install MetaMask to proceed.");
         return;
       }
 
       const web3 = new Web3(window.ethereum);
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
 
       if (accounts && accounts.length > 0) {
         setUserAccount(web3.utils.toChecksumAddress(accounts[0]));
         checkOrganisation(web3, web3.utils.toChecksumAddress(accounts[0]));
       } else {
-        setError('No MetaMask account connected. Please connect your account.');
+        setError("No MetaMask account connected. Please connect your account.");
       }
     } catch (err) {
-      setError('Error connecting to MetaMask. Please try again.');
+      setError("Error connecting to MetaMask. Please try again.");
       console.error(err);
     }
   };
@@ -40,9 +43,6 @@ const IssuerLogin = () => {
     try {
       const contract = new web3.eth.Contract(contractABI, contractAddress);
       const organisationExists = await contract.methods.checkOrganisationExistence(userAccount).call();
-
-      console.log('Organisation Address:', userAccount);
-      console.log('Organisation exists:', organisationExists);
 
       setOrgExists(organisationExists);
     } catch (error) {
@@ -54,140 +54,130 @@ const IssuerLogin = () => {
   const handleRequestRegistration = async () => {
     setIsRequesting(true);
     try {
-      // Prepare email data
       const registrationData = {
         recipient: import.meta.env.VITE_RECIEVER_EMAIL,
-        subject: 'TrueCert issuer registration request',
+        subject: "TrueCert issuer registration request",
         body: `Issuer's blockchain address: ${issuerAddress}\nIssuer's name: ${issuerName}`,
       };
 
-      // Send registration request to the backend
       const serverURL = import.meta.env.VITE_SERVER_URL;
       const response = await fetch(`${serverURL}/registration/fromissuer`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(registrationData),
       });
 
-      const result = await response.json();
       if (response.ok) {
-        console.log('Registration request sent successfully');
-        setSuccessMessage('Your registration request has been sent, wait for admin\'s approval.');
+        setSuccessMessage("Your registration request has been sent. Wait for admin's approval.");
       } else {
-        setError('Failed to send registration request. Please try again.');
+        setError("Failed to send registration request. Please try again.");
       }
     } catch (err) {
-      console.error('Error sending registration request:', err);
-      setError('Failed to send registration request. Please try again.');
+      setError("Failed to send registration request. Please try again.");
     } finally {
       setIsRequesting(false);
     }
   };
 
   const handleRedirect = () => {
-    navigate('/user/issuer/home');
+    navigate("/user/issuer/home");
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
-      <div className="bg-white p-10 rounded-3xl shadow-2xl text-center max-w-md w-full">
-        <h2 className="text-3xl font-extrabold text-gray-800 mb-8">Issuer Login</h2>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+      <Card className="w-full max-w-lg shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-center text-2xl font-bold text-slate-800">
+            Issuer Login
+          </CardTitle>
+          <CardDescription className="text-center text-slate-600">
+            Access your account securely
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <Button onClick={initializeWeb3} className="w-full">
+            Connect MetaMask
+          </Button>
 
-        <button
-          onClick={initializeWeb3}
-          className="w-full bg-blue-600 text-white py-3 px-6 rounded-xl shadow-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105"
-        >
-          Connect MetaMask
-        </button>
+          {userAccount && (
+            <p className="text-center text-green-700">
+              Connected Account: <span className="font-medium">{userAccount}</span>
+            </p>
+          )}
 
-        {userAccount && (
-          <div className="mt-6 text-center text-green-600">
-            <p className="font-medium">Connected Account: {userAccount}</p>
-          </div>
-        )}
+          {orgExists !== null && (
+            <div className="mt-4">
+              {orgExists ? (
+                <div className="flex items-center bg-green-100 p-4 rounded-lg">
+                  <CheckCircleIcon className="w-6 h-6 text-green-600 mr-2" />
+                  <p className="text-green-700">Your organization is registered on the blockchain!</p>
+                </div>
+              ) : (
+                <div className="flex items-center bg-red-100 p-4 rounded-lg">
+                  <XCircleIcon className="w-6 h-6 text-red-600 mr-2" />
+                  <p className="text-red-700">
+                    Your organization is not registered as an issuer on <b>TrueCert</b>.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
-        {orgExists !== null && (
-          <div className="mt-6">
-            {orgExists ? (
-              <div className="flex items-center justify-center bg-green-100 p-4 rounded-lg shadow-md">
-                <CheckCircleIcon className="w-6 h-6 text-green-600 mr-3" />
-                <p className="text-green-600 font-medium">Your organization is registered in the blockchain!</p>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center bg-red-100 p-4 rounded-lg shadow-md">
-                <XCircleIcon className="w-6 h-6 text-red-600 mr-3" />
-                <p className="text-red-600 font-medium">Your organization is not registered as an issuer on <b>TrueCert</b>.</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {orgExists && (
-          <div className="mt-6">
-            <button
-              onClick={handleRedirect}
-              className="w-full bg-green-600 text-white py-3 px-6 rounded-xl shadow-xl hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105"
-            >
+          {orgExists && (
+            <Button onClick={handleRedirect} className="w-full bg-green-600 hover:bg-green-700">
               Go to Issuer Home
-            </button>
-          </div>
-        )}
+            </Button>
+          )}
 
-        {orgExists === false && (
-          <div className="mt-6">
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              handleRequestRegistration();
-            }}>
-              <div className="mb-4">
-                <label htmlFor="issuerAddress" className="block text-sm font-medium text-gray-700">Issuer's Blockchain Address</label>
-                <input
+          {orgExists === false && (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleRequestRegistration();
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label htmlFor="issuerAddress" className="block text-sm text-slate-700">
+                  Issuer's Blockchain Address
+                </label>
+                <Input
                   id="issuerAddress"
                   type="text"
                   value={issuerAddress}
                   onChange={(e) => setIssuerAddress(e.target.value)}
                   required
-                  className="mt-2 p-2 w-full border border-gray-300 rounded-lg"
                 />
               </div>
-
-              <div className="mb-4">
-                <label htmlFor="issuerName" className="block text-sm font-medium text-gray-700">Issuer's Name</label>
-                <input
+              <div>
+                <label htmlFor="issuerName" className="block text-sm text-slate-700">
+                  Issuer's Name
+                </label>
+                <Input
                   id="issuerName"
                   type="text"
                   value={issuerName}
                   onChange={(e) => setIssuerName(e.target.value)}
                   required
-                  className="mt-2 p-2 w-full border border-gray-300 rounded-lg"
                 />
               </div>
-
-              <button
-                type="submit"
-                className="w-full bg-yellow-600 text-white py-3 px-6 rounded-xl shadow-xl hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105"
-                disabled={isRequesting}
-              >
-                {isRequesting ? 'Requesting...' : 'Request Registration'}
-              </button>
+              <Button type="submit" className="w-full" disabled={isRequesting}>
+                {isRequesting ? "Requesting..." : "Request Registration"}
+              </Button>
             </form>
-          </div>
-        )}
+          )}
 
-        {successMessage && (
-          <div className="mt-6 text-center text-green-600">
-            <p>{successMessage}</p>
-          </div>
-        )}
+          {successMessage && (
+            <p className="text-center text-green-700">{successMessage}</p>
+          )}
 
-        {error && (
-          <div className="mt-6 text-center text-red-600">
-            <p>{error}</p>
-          </div>
-        )}
-      </div>
+          {error && (
+            <p className="text-center text-red-700">{error}</p>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

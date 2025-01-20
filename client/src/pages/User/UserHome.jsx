@@ -1,28 +1,61 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Building2, User } from "lucide-react";
 
 function UserHome() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-50 to-green-100">
-      <div className="bg-white p-12 rounded-3xl shadow-xl text-center max-w-lg w-full">
-        <h1 className="text-4xl font-extrabold text-gray-800 mb-6">TrueCert</h1>
-        <p className="text-lg text-gray-600 mb-8">Select your user role to proceed:</p>
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 flex items-center justify-center p-4">
+      <Card className="max-w-md w-full border-none shadow-lg">
+        <CardHeader className="text-center space-y-2">
+          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-purple-700 to-indigo-600 bg-clip-text text-transparent">
+            TrueCert
+          </CardTitle>
+          <CardDescription className="text-lg text-slate-600">
+            Select your user role to proceed
+          </CardDescription>
+        </CardHeader>
 
-        <div className="space-y-6">
-          <Link
-            to="/user/issuer/login"
-            className="block px-10 py-5 font-semibold text-white bg-green-600 rounded-xl shadow-xl hover:bg-green-700 transition-all duration-300 transform hover:scale-105"
-          >
-            Issuer
+        <CardContent className="space-y-4 p-6">
+          {/* Issuer Link */}
+          <Link to="/user/issuer/login" className="block">
+            <Button
+              variant="outline"
+              className="w-full py-6 text-lg border-2 hover:border-purple-500 group relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-700 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="relative flex items-center justify-center gap-3 group-hover:text-white transition-colors">
+                <Building2 className="h-5 w-5" />
+                <span className="font-semibold">Issuer Portal</span>
+              </div>
+            </Button>
           </Link>
 
-          <Link
-            to="/user/recipient/home"
-            className="block px-10 py-5 font-semibold text-white bg-green-500 rounded-xl shadow-xl hover:bg-green-600 transition-all duration-300 transform hover:scale-105"
-          >
-            Recipient
+          {/* Recipient Link */}
+          <Link to="/user/recipient/home" className="block">
+            <Button
+              variant="outline"
+              className="w-full py-6 text-lg border-2 hover:border-indigo-500 group relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="relative flex items-center justify-center gap-3 group-hover:text-white transition-colors">
+                <User className="h-5 w-5" />
+                <span className="font-semibold">Recipient Portal</span>
+              </div>
+            </Button>
           </Link>
-        </div>
-      </div>
+
+          {/* Optional: Additional Info Card */}
+          <Card className="mt-6 bg-slate-50 border-none">
+            <CardContent className="p-4 text-center">
+              <p className="text-sm text-slate-500">
+                Access and manage digital certificates securely with TrueCert
+              </p>
+            </CardContent>
+          </Card>
+        </CardContent>
+      </Card>
     </div>
   );
 }

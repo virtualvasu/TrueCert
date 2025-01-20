@@ -2,11 +2,15 @@ import React, { useState } from 'react';
 import Web3 from 'web3';
 
 import { contractAddress, contractABI } from '../../assets/contractDetails';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const CheckOrganisation = () => {
     const [orgAddress, setOrgAddress] = useState('');
     const [exists, setExists] = useState(null);
     const [message, setMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     async function initializeWeb3() {
         if (typeof window.ethereum === 'undefined') {
@@ -24,10 +28,12 @@ const CheckOrganisation = () => {
 
     async function handleCheckOrganisation() {
         try {
+            setIsLoading(true);
             const { web3 } = await initializeWeb3();
 
             if (!orgAddress) {
                 setMessage('Please enter an organisation address.');
+                setIsLoading(false);
                 return;
             }
 
@@ -36,52 +42,60 @@ const CheckOrganisation = () => {
 
             setExists(organisationExists);
             setMessage('');
+            setIsLoading(false);
         } catch (error) {
             console.error('Error:', error.message);
             setMessage(`Error: ${error.message}`);
+            setIsLoading(false);
         }
     }
 
     return (
-        <div className="flex flex-col items-center justify-center bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 p-6 rounded-2xl">
-            <div className="w-full max-w-md bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden border border-white border-opacity-20">
-                <header className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white p-6">
-                    <h2 className="text-3xl font-bold text-center">Check Organisation</h2>
-                </header>
+        <div className="flex flex-col items-center justify-center p-8 w-full max-w-xl mx-auto">
+            <Card className="w-full bg-white border border-indigo-500 rounded-xl shadow-xl">
+                <CardHeader className="bg-indigo-500 text-white p-6 rounded-t-xl">
+                    <CardTitle className="text-4xl font-semibold text-center">Check Organisation</CardTitle>
+                    <CardDescription className="text-center text-lg text-white">
+                        Verify an organisation's presence on the blockchain.
+                    </CardDescription>
+                </CardHeader>
 
-                <div className="p-6">
+                <CardContent className="p-8 space-y-6">
                     {message && (
                         <p
                             className={`text-center mb-4 font-medium ${
-                                message.includes('Error') ? 'text-red-500' : 'text-yellow-500'
+                                message.includes('Error') ? 'text-red-500' : 'text-indigo-500'
                             }`}
                         >
                             {message}
                         </p>
                     )}
                     <div className="mb-4">
-                        <label htmlFor="orgAddress" className="block text-sm font-medium text-gray-200 mb-2">
+                        <label htmlFor="orgAddress" className="block text-sm font-medium text-gray-800 mb-2">
                             Organisation Address
                         </label>
-                        <input
-                            type="text"
+                        <Input
                             id="orgAddress"
                             value={orgAddress}
                             onChange={(e) => setOrgAddress(e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-gray-100 text-gray-800"
+                            className="w-full bg-gray-100 text-gray-800 border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg shadow-sm"
                             placeholder="Enter organisation address"
                         />
                     </div>
-                    <button
+                    <Button
                         onClick={handleCheckOrganisation}
-                        className="w-full bg-gradient-to-r from-indigo-500 to-indigo-600 text-white py-3 px-6 rounded-lg shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] text-lg font-semibold"
+                        className="w-full bg-indigo-500 text-white py-4 px-6 rounded-lg shadow-lg hover:bg-indigo-600 transition-all duration-300"
                     >
-                        Check Organisation
-                    </button>
+                        {isLoading ? (
+                            <div className="w-6 h-6 border-4 border-t-transparent border-indigo-500 rounded-full animate-spin"></div>
+                        ) : (
+                            'Check Organisation'
+                        )}
+                    </Button>
                     {exists !== null && (
                         <div className="mt-6 text-center">
                             {exists ? (
-                                <p className="text-green-500 font-medium text-lg">
+                                <p className="text-indigo-500 font-medium text-lg">
                                     Organisation exists in the blockchain!
                                 </p>
                             ) : (
@@ -91,8 +105,8 @@ const CheckOrganisation = () => {
                             )}
                         </div>
                     )}
-                </div>
-            </div>
+                </CardContent>
+            </Card>
         </div>
     );
 };

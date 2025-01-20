@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import Web3 from 'web3';
 
-const adminAddress = import.meta.env.VITE_ADMIN_PUBLIC_ADDRESS;
-
 import { contractAddress, contractABI } from '../../assets/contractDetails';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+const adminAddress = import.meta.env.VITE_ADMIN_PUBLIC_ADDRESS;
 
 const RevokeOrganisation = () => {
     const [orgAddress, setOrgAddress] = useState('');
     const [message, setMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     async function initializeWeb3() {
         if (typeof window.ethereum === 'undefined') {
@@ -25,43 +29,49 @@ const RevokeOrganisation = () => {
 
     async function handleRevokeOrganisation() {
         try {
+            setIsLoading(true);
             const { web3, userAccount } = await initializeWeb3();
 
             if (userAccount.toLowerCase() !== adminAddress.toLowerCase()) {
                 setMessage('You must be the admin to revoke the organisation. Please switch to the admin account.');
+                setIsLoading(false);
                 return;
             }
 
             if (!orgAddress) {
                 setMessage('Please enter an organisation address.');
+                setIsLoading(false);
                 return;
             }
 
             const contract = new web3.eth.Contract(contractABI, contractAddress);
             const transaction = await contract.methods.revokeOrganisation(orgAddress).send({ from: userAccount });
 
-            setMessage(
-                `Organisation revoked from the blockchain! Transaction Hash: ${transaction.transactionHash}`
-            );
-            setOrgAddress(''); 
+            setMessage(`Organisation revoked from the blockchain! Transaction Hash: ${transaction.transactionHash}`);
+            setOrgAddress('');
+            setIsLoading(false);
         } catch (error) {
             console.error('Error:', error.message);
             setMessage(`Error: ${error.message}`);
+            setIsLoading(false);
         }
     }
 
     return (
-        <div className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200">
-            <div className="w-full max-w-md bg-white rounded-lg shadow-lg border border-blue-300">
-                <header className="bg-gradient-to-r from-blue-500 to-indigo-500 p-6 rounded-t-lg">
-                    <h2 className="text-2xl font-bold text-center text-white tracking-wide">Revoke Organisation</h2>
-                </header>
+        <div className="flex flex-col items-center justify-center p-8 w-full max-w-xl mx-auto">
+            <Card className="w-full bg-white border border-indigo-500 rounded-xl shadow-xl">
+                <CardHeader className="bg-indigo-500 text-white p-6 rounded-t-xl">
+                    <CardTitle className="text-4xl font-semibold text-center">Revoke Organisation</CardTitle>
+                    <CardDescription className="text-center text-lg text-white">
+                        Revoke an organisation's access to the blockchain.
+                    </CardDescription>
+                </CardHeader>
 
-                <div className="p-6">
+                <CardContent className="p-8 space-y-6">
                     {message && (
                         <p
                             className={`text-center mb-4 font-medium ${
-                                message.includes('Error') ? 'text-red-600' : 'text-green-600'
+                                message.includes('Error') ? 'text-red-500' : 'text-indigo-500'
                             }`}
                         >
                             {message}
@@ -71,23 +81,26 @@ const RevokeOrganisation = () => {
                         <label htmlFor="orgAddress" className="block text-sm font-medium text-gray-800 mb-2">
                             Organisation Address
                         </label>
-                        <input
-                            type="text"
+                        <Input
                             id="orgAddress"
                             value={orgAddress}
                             onChange={(e) => setOrgAddress(e.target.value)}
-                            className="w-full px-4 py-2 border border-blue-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-blue-50"
+                            className="w-full bg-gray-100 text-gray-800 border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 rounded-lg shadow-sm"
                             placeholder="Enter organisation address"
                         />
                     </div>
-                    <button
+                    <Button
                         onClick={handleRevokeOrganisation}
-                        className="w-full bg-red-500 text-white py-2 px-4 rounded-md shadow-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2"
+                        className="w-full bg-red-500 text-white py-4 px-6 rounded-lg shadow-lg hover:bg-red-600 transition-all duration-300"
                     >
-                        Revoke Organisation
-                    </button>
-                </div>
-            </div>
+                        {isLoading ? (
+                            <div className="w-6 h-6 border-4 border-t-transparent border-indigo-500 rounded-full animate-spin"></div>
+                        ) : (
+                            'Revoke Organisation'
+                        )}
+                    </Button>
+                </CardContent>
+            </Card>
         </div>
     );
 };

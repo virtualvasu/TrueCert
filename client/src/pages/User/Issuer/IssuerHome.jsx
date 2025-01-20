@@ -1,128 +1,149 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import navigate from react-router-dom
-import { FaCogs, FaUserCircle } from 'react-icons/fa'; // Import icons for Actions and Profile
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Settings2, UserCircle, LogOut, ArrowRight } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 function IssuerHome() {
-  const navigate = useNavigate(); // Initialize navigate function
+  const navigate = useNavigate();
   const [activeComponent, setActiveComponent] = useState(null);
 
-  // Function to handle navigation and set active component
   const handleNavigation = (component) => {
     setActiveComponent(component);
     if (component === 'Actions') {
-      navigate('/user/issuer/actions'); // Navigate to actions page
+      navigate('/user/issuer/actions');
     } else if (component === 'Profile') {
-      navigate('/user/issuer/profile'); // Navigate to profile page
+      navigate('/user/issuer/profile');
     }
   };
 
-  // Function to handle logout
   const handleLogout = () => {
-    // Clear any session data or authentication tokens (if needed)
-    localStorage.removeItem('authToken'); // Example, depending on how you manage authentication
-
-    // Redirect to login page
-    navigate('/user/issuer/login'); // Navigate to the login page
+    localStorage.removeItem('authToken');
+    navigate('/user/issuer/login');
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-gray-100 min-h-screen flex flex-col justify-between">
-      {/* Header Section */}
-      <header className="bg-blue-800 text-white p-8 shadow-lg">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-extrabold tracking-tight">TrueCert</h1>
-            <p className="text-lg mt-2 text-gray-200">
-              Streamlining certificate management for issuers.
-            </p>
-          </div>
-          <div>
-            {/* Logout button */}
-            <button
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
+      {/* Header */}
+      <header className="bg-gradient-to-r from-purple-700 to-indigo-600 text-white">
+        <div className="max-w-7xl mx-auto p-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h1 className="text-3xl font-bold tracking-tight">TrueCert</h1>
+              <p className="text-purple-100">
+                Streamlining certificate management for issuers
+              </p>
+            </div>
+            <Button
+              variant="secondary"
               onClick={handleLogout}
-              className="text-white font-semibold py-2 px-4 rounded-lg bg-blue-600 hover:bg-blue-700"
+              className="gap-2 hover:bg-white/90 hover:text-purple-700 transition-colors"
             >
+              <LogOut className="h-4 w-4" />
               Logout
-            </button>
+            </Button>
           </div>
         </div>
       </header>
 
-      {/* Main Content Section */}
-      <main className="max-w-7xl mx-auto bg-white p-10 rounded-lg shadow-lg mt-8 mb-8">
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-extrabold text-blue-700">Issuer Dashboard</h1>
-          <p className="text-gray-600 mt-2">
-            Manage your actions and profile seamlessly.
-          </p>
-        </div>
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        <Card className="border-none shadow-lg">
+          <CardHeader className="text-center space-y-2">
+            <CardTitle className="text-3xl font-bold text-slate-800">
+              Issuer Dashboard
+            </CardTitle>
+            <CardDescription className="text-slate-500 text-lg">
+              Manage your actions and profile seamlessly
+            </CardDescription>
+          </CardHeader>
 
-        {/* Navigation Buttons */}
-        <div className="flex justify-center space-x-12 mb-8">
-          <button
-            onClick={() => handleNavigation('Actions')}
-            className={`flex items-center px-8 py-4 text-xl font-medium text-white rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105 ${
-              activeComponent === 'Actions'
-                ? 'bg-blue-700'
-                : 'bg-blue-600 hover:bg-blue-700'
-            }`}
-          >
-            <FaCogs className="mr-3 text-2xl" />
-            Actions
-          </button>
-          <button
-            onClick={() => handleNavigation('Profile')}
-            className={`flex items-center px-8 py-4 text-xl font-medium text-white rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105 ${
-              activeComponent === 'Profile'
-                ? 'bg-green-700'
-                : 'bg-green-600 hover:bg-green-700'
-            }`}
-          >
-            <FaUserCircle className="mr-3 text-2xl" />
-            Profile
-          </button>
-        </div>
+          <CardContent className="space-y-8">
+            {/* Navigation Cards */}
+            <div className="grid md:grid-cols-2 gap-6 mt-4">
+              {/* Actions Card */}
+              <Card
+                className={`group cursor-pointer transition-all hover:shadow-lg ${activeComponent === 'Actions' ? 'border-purple-500 shadow-lg' : ''
+                  }`}
+                onClick={() => handleNavigation('Actions')}
+              >
+                <CardContent className="p-6 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-full bg-purple-100 text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                      <Settings2 className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-slate-800">Actions</h3>
+                      <p className="text-slate-500">Manage certificates and operations</p>
+                    </div>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-purple-600 transition-colors" />
+                </CardContent>
+              </Card>
 
-        {/* Dynamic Content */}
-        <div className="bg-gray-50 p-6 rounded-lg shadow-inner">
-          {activeComponent === 'Actions' ? (
-            <div>
-              <h2 className="text-2xl font-semibold text-blue-700 mb-4">
-                Issuer Actions
-              </h2>
-              {/* Replace with the actual component */}
-              <p className="text-lg text-gray-600">
-                Manage your certificate issuance actions. Control certificates, view issuance history, and take necessary actions for your organization.
-              </p>
+              {/* Profile Card */}
+              <Card
+                className={`group cursor-pointer transition-all hover:shadow-lg ${activeComponent === 'Profile' ? 'border-indigo-500 shadow-lg' : ''
+                  }`}
+                onClick={() => handleNavigation('Profile')}
+              >
+                <CardContent className="p-6 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-full bg-indigo-100 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                      <UserCircle className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-slate-800">Profile</h3>
+                      <p className="text-slate-500">Manage your account settings</p>
+                    </div>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-indigo-600 transition-colors" />
+                </CardContent>
+              </Card>
             </div>
-          ) : activeComponent === 'Profile' ? (
-            <div>
-              <h2 className="text-2xl font-semibold text-green-700 mb-4">
-                Issuer Profile
-              </h2>
-              {/* Replace with the actual component */}
-              <p className="text-lg text-gray-600">
-                Update your personal details, change settings, and manage account preferences in a few clicks.
-              </p>
-            </div>
-          ) : (
-            <div className="text-center text-gray-500">
-              <p className="text-lg">
-                Select an option above to get started with managing your actions or profile.
-              </p>
-            </div>
-          )}
-        </div>
+
+            {/* Dynamic Content Section */}
+            <Card className="bg-slate-50 border-none">
+              <CardContent className="p-6">
+                {activeComponent === 'Actions' ? (
+                  <div className="space-y-3">
+                    <h2 className="text-2xl font-semibold text-purple-700">
+                      Issuer Actions
+                    </h2>
+                    <p className="text-slate-600">
+                      Manage your certificate issuance actions. Control certificates, view issuance history, and take necessary actions for your organization.
+                    </p>
+                  </div>
+                ) : activeComponent === 'Profile' ? (
+                  <div className="space-y-3">
+                    <h2 className="text-2xl font-semibold text-indigo-700">
+                      Issuer Profile
+                    </h2>
+                    <p className="text-slate-600">
+                      Update your personal details, change settings, and manage account preferences in a few clicks.
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-center text-slate-500 text-lg">
+                    Select an option above to get started with managing your actions or profile.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </CardContent>
+        </Card>
       </main>
 
-      {/* Footer Section */}
-      <footer className="bg-blue-800 text-white p-4">
-        <div className="max-w-7xl mx-auto text-center">
-          <p className="text-white-600 text-md">
+      {/* Footer */}
+      <footer className="bg-gradient-to-r from-purple-700 to-indigo-600 text-white py-4 absolute bottom-0 w-full">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <p className="text-purple-100">
             Made with ❤️ by <span className="font-bold text-white">Vasu</span>
           </p>
         </div>
       </footer>
+
     </div>
   );
 }

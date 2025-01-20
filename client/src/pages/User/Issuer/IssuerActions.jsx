@@ -1,116 +1,131 @@
 import React, { useState } from 'react';
-import { FaCertificate, FaSearch, FaBan } from 'react-icons/fa'; 
+import { Award, Search, Ban, LogOut } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import IssueCertificate from '../../../components/user/issuer/IssueCertificate';
 import CheckCertificate from '../../../components/user/issuer/CheckCertificate';
 import RevokeCertificate from '../../../components/user/issuer/RevokeCertificate';
-import TrueCert_logo from '../../../assets/TrueCert_logo.svg'; 
-import { useNavigate } from 'react-router-dom'; 
+import TrueCert_logo from '../../../assets/TrueCert_logo.svg';
+import { useNavigate } from 'react-router-dom';
 
 function IssuerActions() {
   const [activeComponent, setActiveComponent] = useState(null);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
-  
   const handleLogout = () => {
-    
-    navigate('/user/issuer/login'); 
+    navigate('/user/issuer/login');
   };
 
   return (
-    <div className="bg-gradient-to-br from-indigo-50 to-gray-100 min-h-screen mt-5">
-      <div className="max-w-7xl mx-auto shadow-lg bg-white rounded-xl overflow-hidden">
-        {/* Header Section with Logo and Branding */}
-        <header className="bg-blue-600 text-white p-6 shadow-md">
-          <div className="flex items-center justify-between max-w-7xl mx-auto">
-            {/* TrueCert Logo */}
-            <div className="flex items-center space-x-3">
-              <img
-                src={TrueCert_logo} 
-                alt="TrueCert Logo"
-                className="h-20 w-20 rounded-full object-cover"
-              />
-
-              <h1 className="text-3xl font-extrabold">TrueCert</h1>
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 p-4 md:p-8">
+      <Card className="mx-auto max-w-7xl border-none shadow-lg">
+        {/* Header Section */}
+        <CardHeader className="bg-gradient-to-r from-purple-700 to-indigo-600 text-white rounded-t-xl">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="h-16 w-16 rounded-full bg-white/90 p-2">
+                <img
+                  src={TrueCert_logo}
+                  alt="TrueCert Logo"
+                  className="h-full w-full object-contain"
+                />
+              </div>
+              <div>
+                <CardTitle className="text-3xl font-bold">TrueCert</CardTitle>
+                <CardDescription className="text-purple-100">
+                  Certificate Management System
+                </CardDescription>
+              </div>
             </div>
-            {/* Logout Button */}
-            <button
+            <Button 
+              variant="secondary" 
               onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg shadow-md transition-all duration-300"
+              className="gap-2 hover:bg-white/90 hover:text-purple-700 transition-colors"
             >
+              <LogOut className="h-4 w-4" />
               Logout
-            </button>
+            </Button>
           </div>
-        </header>
+        </CardHeader>
 
-        {/* Main Content */}
-        <main className="p-8">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-extrabold text-gray-800">Issuer Dashboard</h1>
-            <p className="text-lg text-gray-500 mt-2">Manage your certificate issuance with ease</p>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex justify-center space-x-6 mb-10">
-            <button
-              onClick={() => setActiveComponent('IssueCertificate')}
-              className={`px-8 py-4 text-lg font-semibold text-white rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105 ${activeComponent === 'IssueCertificate'
-                  ? 'bg-indigo-600 scale-105'
-                  : 'bg-indigo-500 hover:bg-indigo-600'
-                }`}
-            >
-              <FaCertificate className="inline-block mr-2" />
-              Issue Certificate
-            </button>
-            <button
-              onClick={() => setActiveComponent('CheckCertificate')}
-              className={`px-8 py-4 text-lg font-semibold text-white rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105 ${activeComponent === 'CheckCertificate'
-                  ? 'bg-green-600 scale-105'
-                  : 'bg-green-500 hover:bg-green-600'
-                }`}
-            >
-              <FaSearch className="inline-block mr-2" />
-              Check Certificate
-            </button>
-            <button
-              onClick={() => setActiveComponent('RevokeCertificate')}
-              className={`px-8 py-4 text-lg font-semibold text-white rounded-lg shadow-xl transition-all duration-300 transform hover:scale-105 ${activeComponent === 'RevokeCertificate'
-                  ? 'bg-red-600 scale-105'
-                  : 'bg-red-500 hover:bg-red-600'
-                }`}
-            >
-              <FaBan className="inline-block mr-2" />
-              Revoke Certificate
-            </button>
+        <CardContent className="p-6 bg-white">
+          {/* Dashboard Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold tracking-tight text-slate-800">Issuer Dashboard</h1>
+            <p className="text-slate-500 mt-2">
+              Manage your digital certificates with enhanced security and efficiency
+            </p>
           </div>
 
-          {/* Displaying Active Component */}
-          <div className="bg-gray-50 p-8 rounded-xl shadow-xl">
-            {activeComponent === 'IssueCertificate' && (
-              <div>
-                <h2 className="text-3xl font-semibold mb-6 text-gray-800">Issue a New Certificate</h2>
-                <IssueCertificate />
-              </div>
-            )}
-            {activeComponent === 'CheckCertificate' && (
-              <div>
-                <h2 className="text-3xl font-semibold mb-6 text-gray-800">Check Existing Certificates</h2>
-                <CheckCertificate />
-              </div>
-            )}
-            {activeComponent === 'RevokeCertificate' && (
-              <div>
-                <h2 className="text-3xl font-semibold mb-6 text-gray-800">Revoke a Certificate</h2>
-                <RevokeCertificate />
-              </div>
-            )}
-            {!activeComponent && (
-              <p className="text-center text-lg text-gray-600">
-                Select an action above to get started.
-              </p>
-            )}
-          </div>
-        </main>
-      </div>
+          {/* Main Actions */}
+          <Tabs 
+            value={activeComponent} 
+            onValueChange={setActiveComponent}
+            className="space-y-6"
+          >
+            <TabsList className="grid w-full grid-cols-3 gap-4 h-auto bg-slate-100">
+              <TabsTrigger 
+                value="IssueCertificate"
+                className="data-[state=active]:bg-purple-600 data-[state=active]:text-white flex items-center gap-2 py-6 transition-all duration-300"
+              >
+                <Award className="h-4 w-4" />
+                Issue Certificate
+              </TabsTrigger>
+              <TabsTrigger 
+                value="CheckCertificate"
+                className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white flex items-center gap-2 py-6 transition-all duration-300"
+              >
+                <Search className="h-4 w-4" />
+                Check Certificate
+              </TabsTrigger>
+              <TabsTrigger 
+                value="RevokeCertificate"
+                className="data-[state=active]:bg-rose-600 data-[state=active]:text-white flex items-center gap-2 py-6 transition-all duration-300"
+              >
+                <Ban className="h-4 w-4" />
+                Revoke Certificate
+              </TabsTrigger>
+            </TabsList>
+
+            <Card className="mt-6 border-none shadow-md bg-slate-50">
+              <CardContent className="p-6">
+                <ScrollArea className="h-[600px] w-full rounded-md">
+                  <TabsContent value="IssueCertificate">
+                    <div className="space-y-4">
+                      <h2 className="text-2xl font-semibold text-slate-800">Issue a New Certificate</h2>
+                      <IssueCertificate />
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="CheckCertificate">
+                    <div className="space-y-4">
+                      <h2 className="text-2xl font-semibold text-slate-800">Check Existing Certificates</h2>
+                      <CheckCertificate />
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="RevokeCertificate">
+                    <div className="space-y-4">
+                      <h2 className="text-2xl font-semibold text-slate-800">Revoke a Certificate</h2>
+                      <RevokeCertificate />
+                    </div>
+                  </TabsContent>
+
+                  {!activeComponent && (
+                    <div className="text-center py-12">
+                      <h3 className="text-xl text-slate-500">
+                        Select an action above to get started
+                      </h3>
+                    </div>
+                  )}
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 }

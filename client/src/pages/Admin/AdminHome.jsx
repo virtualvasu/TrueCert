@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
-import { ArrowRight } from 'lucide-react'; // Import ArrowRight icon from lucide-react
+import { ArrowRight, LogOut } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import StoreOrganisation from '../../components/admin/StoreOrganisation';
 import CheckOrganisation from '../../components/admin/CheckOrganisation';
 import RevokeOrganisation from '../../components/admin/RevokeOrganisation';
+import TrueCert_logo from '../../assets/TrueCert_logo.svg'; // Your logo import
+import { useNavigate } from 'react-router-dom';
 
 const AdminHome = () => {
   const [activeSection, setActiveSection] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleShowSection = (section) => {
     setIsLoading(true);
@@ -24,101 +31,108 @@ const AdminHome = () => {
     }, 500);
   };
 
+  const handleLogout = () => {
+    navigate('/admin/login'); // Adjust path for admin logout
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl shadow-2xl overflow-hidden border border-white border-opacity-20">
-        <header className="bg-gradient-to-r from-blue-700 to-indigo-700 text-white p-8">
-          <div className="text-center">
-            {/* Logo */}
-            <div className="flex justify-center mb-4">
-              <ArrowRight className="w-12 h-12 text-white" />
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 p-4 md:p-8">
+      <Card className="mx-auto max-w-7xl border-none shadow-lg">
+        {/* Header Section */}
+        <CardHeader className="bg-gradient-to-r from-blue-700 to-indigo-700 text-white rounded-t-xl">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="h-16 w-16 rounded-full bg-white/90 p-2">
+                <img src={TrueCert_logo} alt="TrueCert Logo" className="h-full w-full object-contain" />
+              </div>
+              <div>
+                <CardTitle className="text-3xl font-bold">TrueCert</CardTitle>
+                <CardDescription className="text-blue-100">Blockchain-Powered Certificate Management</CardDescription>
+              </div>
             </div>
-            <h1 className="text-4xl font-extrabold tracking-tight">TrueCert</h1>
-            <p className="text-lg mt-2 text-blue-100">
-              Blockchain-Powered Certificate Management
+            <Button 
+              variant="secondary" 
+              onClick={handleLogout}
+              className="gap-2 hover:bg-white/90 hover:text-blue-700 transition-colors"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
+          </div>
+        </CardHeader>
+
+        <CardContent className="p-6 bg-white">
+          {/* Dashboard Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold tracking-tight text-slate-800">Admin Dashboard</h1>
+            <p className="text-slate-500 mt-2">
+              Manage organizations and their certificates with enhanced security
             </p>
           </div>
-        </header>
 
-        <div className="p-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-3xl font-semibold text-white">Admin Dashboard</h2>
-            {activeSection && !isLoading && (
-              <button
-                onClick={handleBack}
-                className="px-4 py-2 text-sm font-medium text-blue-100 hover:text-white bg-blue-800 bg-opacity-50 rounded-lg transition-all duration-300 hover:bg-opacity-70"
+          {/* Main Actions */}
+          <Tabs value={activeSection} onValueChange={setActiveSection} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-3 gap-4 h-auto bg-slate-100">
+              <TabsTrigger 
+                value="store"
+                className="data-[state=active]:bg-yellow-600 data-[state=active]:text-white flex items-center gap-2 py-6 transition-all duration-300"
               >
-                ← Back to Menu
-              </button>
-            )}
-          </div>
-
-          {/* Main Menu Buttons */}
-          {!activeSection && !isLoading && (
-            <div className="grid grid-cols-1 gap-4">
-              <button
-                onClick={() => handleShowSection('store')}
-                className="group relative w-full p-6 text-left bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-xl shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]"
+                <ArrowRight className="h-4 w-4" />
+                Store Organisation
+              </TabsTrigger>
+              <TabsTrigger 
+                value="check"
+                className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white flex items-center gap-2 py-6 transition-all duration-300"
               >
-                <h3 className="text-xl font-bold text-white mb-2">Store Organisation</h3>
-                <p className="text-yellow-100">Add new organizations to the blockchain network</p>
-                <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-50 group-hover:opacity-100 transition-opacity">
-                  <ArrowRight className="w-6 h-6 text-white" />
-                </div>
-              </button>
-
-              <button
-                onClick={() => handleShowSection('check')}
-                className="group relative w-full p-6 text-left bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-xl shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]"
+                <ArrowRight className="h-4 w-4" />
+                Check Organisation
+              </TabsTrigger>
+              <TabsTrigger 
+                value="revoke"
+                className="data-[state=active]:bg-red-600 data-[state=active]:text-white flex items-center gap-2 py-6 transition-all duration-300"
               >
-                <h3 className="text-xl font-bold text-white mb-2">Check Organisation</h3>
-                <p className="text-indigo-100">Verify organization credentials and status</p>
-                <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-50 group-hover:opacity-100 transition-opacity">
-                  <ArrowRight className="w-6 h-6 text-white" />
-                </div>
-              </button>
+                <ArrowRight className="h-4 w-4" />
+                Revoke Organisation
+              </TabsTrigger>
+            </TabsList>
 
-              <button
-                onClick={() => handleShowSection('revoke')}
-                className="group relative w-full p-6 text-left bg-gradient-to-r from-red-500 to-red-600 rounded-xl shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]"
-              >
-                <h3 className="text-xl font-bold text-white mb-2">Revoke Organisation</h3>
-                <p className="text-red-100">Remove organization access and certificates</p>
-                <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-50 group-hover:opacity-100 transition-opacity">
-                  <ArrowRight className="w-6 h-6 text-white" />
-                </div>
-              </button>
-            </div>
-          )}
+            <Card className="mt-6 border-none shadow-md bg-slate-50">
+              <CardContent className="p-6">
+                <ScrollArea className="h-[600px] w-full rounded-md">
+                  <TabsContent value="store">
+                    <div className="space-y-4">
+                      <h2 className="text-2xl font-semibold text-slate-800">Store Organisation</h2>
+                      <StoreOrganisation />
+                    </div>
+                  </TabsContent>
 
-          {/* Loading State */}
-          {isLoading && (
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="w-16 h-16 border-4 border-blue-400 border-t-blue-100 rounded-full animate-spin"></div>
-              <p className="mt-4 text-lg text-blue-100">Loading...</p>
-            </div>
-          )}
+                  <TabsContent value="check">
+                    <div className="space-y-4">
+                      <h2 className="text-2xl font-semibold text-slate-800">Check Organisation</h2>
+                      <CheckOrganisation />
+                    </div>
+                  </TabsContent>
 
-          {/* Active Section Components */}
-          {!isLoading && activeSection === 'store' && (
-            <div className="mt-8 bg-white bg-opacity-10 rounded-xl p-6">
-              <StoreOrganisation />
-            </div>
-          )}
+                  <TabsContent value="revoke">
+                    <div className="space-y-4">
+                      <h2 className="text-2xl font-semibold text-slate-800">Revoke Organisation</h2>
+                      <RevokeOrganisation />
+                    </div>
+                  </TabsContent>
 
-          {!isLoading && activeSection === 'check' && (
-            <div className="mt-8 bg-white bg-opacity-10 rounded-xl p-6">
-              <CheckOrganisation />
-            </div>
-          )}
-
-          {!isLoading && activeSection === 'revoke' && (
-            <div className="mt-8 bg-white bg-opacity-10 rounded-xl p-6">
-              <RevokeOrganisation />
-            </div>
-          )}
-        </div>
-      </div>
+                  {!activeSection && (
+                    <div className="text-center py-12">
+                      <h3 className="text-xl text-slate-500">
+                        Select an action above to get started
+                      </h3>
+                    </div>
+                  )}
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 };

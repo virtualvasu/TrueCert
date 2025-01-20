@@ -1,64 +1,84 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, UserCircle, Building } from 'lucide-react';
+import { Shield, UserCircle, Building, ArrowRight } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 function RoleSelection() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 flex flex-col justify-center items-center p-4">
-      {/* Logo and Branding */}
-      <div className="mb-12 text-center">
-        <div className="flex items-center justify-center mb-4">
-          <Shield className="w-12 h-12 text-white" />
-        </div>
-        <h1 className="text-5xl font-bold text-white mb-2 tracking-tight">
-          TrueCert
-        </h1>
-        <p className="text-blue-100 text-lg">
-          Blockchain-Powered Document Issuing and Verification
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 flex flex-col justify-center items-center p-4">
+      <Card className="w-full max-w-lg border border-slate-200 bg-white/80 backdrop-blur-sm shadow-lg">
+        <CardHeader className="text-center space-y-6 pb-2">
+          <div className="mx-auto bg-indigo-50 p-4 rounded-full w-fit">
+            <Shield className="w-10 h-10 text-indigo-600" />
+          </div>
+          <div className="space-y-2">
+            <CardTitle className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+              TrueCert
+            </CardTitle>
+            <CardDescription className="text-slate-600 text-lg">
+              Blockchain-Powered Document Verification
+            </CardDescription>
+          </div>
+        </CardHeader>
 
-      {/* Role Selection Cards */}
-      <div className="w-full max-w-md space-y-4">
-        <h2 className="text-xl text-blue-100 text-center mb-6">
-          Select your role to continue
-        </h2>
-        
-        <Link
-          to="/admin/login"
-          className="flex items-center p-4 bg-white bg-opacity-10 backdrop-blur-lg rounded-xl hover:bg-opacity-20 transition-all duration-300 border border-white border-opacity-20 group"
-        >
-          <div className="p-3 rounded-lg bg-blue-700 group-hover:bg-blue-600 transition-colors">
-            <Building className="w-6 h-6 text-white" />
-          </div>
-          <div className="ml-4 flex-1">
-            <h3 className="text-lg font-semibold text-white">Administrator</h3>
-            <p className="text-blue-100 text-sm">
-              Manage Organisations
-            </p>
-          </div>
-        </Link>
+        <CardContent className="space-y-8 p-6">
+          <h2 className="text-lg text-center text-slate-600 font-medium">
+            Select your role to continue
+          </h2>
 
-        <Link
-          to="/user/home"
-          className="flex items-center p-4 bg-white bg-opacity-10 backdrop-blur-lg rounded-xl hover:bg-opacity-20 transition-all duration-300 border border-white border-opacity-20 group"
-        >
-          <div className="p-3 rounded-lg bg-blue-700 group-hover:bg-blue-600 transition-colors">
-            <UserCircle className="w-6 h-6 text-white" />
-          </div>
-          <div className="ml-4 flex-1">
-            <h3 className="text-lg font-semibold text-white">User</h3>
-            <p className="text-blue-100 text-sm">
-              Enter as issuer organisation or certificate holder
-            </p>
-          </div>
-        </Link>
-      </div>
+          <div className="space-y-4">
+            <Link to="/admin/login" className="block">
+              <Card className="group hover:shadow-md transition-all duration-300 border border-slate-200">
+                <CardContent className="flex items-center p-4">
+                  <div className="p-3 rounded-lg bg-indigo-50 group-hover:bg-indigo-100 transition-colors">
+                    <Building className="w-6 h-6 text-indigo-600" />
+                  </div>
+                  <div className="ml-4 flex-1">
+                    <h3 className="text-lg font-semibold text-slate-800">Administrator</h3>
+                    <p className="text-slate-500 text-sm">Manage Organisations</p>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-indigo-600 transition-colors" />
+                </CardContent>
+              </Card>
+            </Link>
 
-      {/* Footer */}
-      <div className="mt-12 text-center text-blue-200 text-sm">
-        <p>Secure • Transparent • Verifiable</p>
-      </div>
+            <Link to="/user/home" className="block">
+              <Card className="group hover:shadow-md transition-all duration-300 border border-slate-200">
+                <CardContent className="flex items-center p-4">
+                  <div className="p-3 rounded-lg bg-purple-50 group-hover:bg-purple-100 transition-colors">
+                    <UserCircle className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div className="ml-4 flex-1">
+                    <h3 className="text-lg font-semibold text-slate-800">User</h3>
+                    <p className="text-slate-500 text-sm">
+                      Enter as issuer organisation or certificate holder
+                    </p>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-purple-600 transition-colors" />
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+
+          <Separator className="bg-slate-200" />
+
+          <div className="flex justify-center space-x-8 text-sm">
+            <div className="flex items-center text-slate-600">
+              <div className="w-2 h-2 rounded-full bg-indigo-400 mr-2" />
+              Secure
+            </div>
+            <div className="flex items-center text-slate-600">
+              <div className="w-2 h-2 rounded-full bg-purple-400 mr-2" />
+              Transparent
+            </div>
+            <div className="flex items-center text-slate-600">
+              <div className="w-2 h-2 rounded-full bg-slate-400 mr-2" />
+              Verifiable
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
