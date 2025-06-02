@@ -44,6 +44,9 @@ TrueCert follows a three-tier architecture:
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
+![Workflow - trueCert](images/TrueCert%20(1).png)
+
+
 ## Prerequisites
 
 Before setting up TrueCert, ensure you have the following installed:
