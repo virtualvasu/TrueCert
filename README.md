@@ -39,7 +39,7 @@ TrueCert follows a three-tier architecture:
 │   (React)       │◄──►│   (Node.js)     │◄──►│   (Ethereum)    │
 │                 │    │                 │    │                 │
 │ • User Interface│    │ • API Gateway   │    │ • Smart Contract│
-│ • Web3 Integration│   │ • Email Service │    │ • IPFS Storage  │
+│ • Web3 integrn. │    │ • Email Service │    │ • IPFS Storage  │
 │ • Certificate UI│    │ • File Handling │    │ • Certificate DB│
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
@@ -147,7 +147,7 @@ NODE_ENV=development
 Start the server:
 
 ```bash
-npm start
+node server.js
 ```
 
 The server will be available at `http://localhost:3000`
@@ -201,14 +201,12 @@ Configure your environment variables in `hardhat/.env`:
 SEPOLIA_URL=https://eth-sepolia.g.alchemy.com/v2/your_api_key
 PRIVATE_KEY=your_wallet_private_key
 
-# Contract Configuration
-ETHERSCAN_API_KEY=your_etherscan_api_key
 ```
 
 Deploy the smart contracts:
 
 ```bash
-npx hardhat ignition deploy deployments/ --network sepolia
+npx hardhat ignition deploy contracts/Contract.sol --network sepolia
 ```
 
 ## API Reference
@@ -223,21 +221,14 @@ All API endpoints require proper authentication headers where applicable.
 POST /registration/fromissuer
 ```
 
-Register a new certificate request from an issuer.
+Register a new issuer organisation request from the admin.
 
 **Request Body:**
 ```json
 {
-  "issuerName": "University Name",
-  "issuerEmail": "issuer@university.edu",
-  "recipientName": "John Doe",
-  "recipientEmail": "john@example.com",
-  "certificateTitle": "Bachelor of Science",
-  "certificateHash": "0x...",
-  "metadata": {
-    "graduationDate": "2024-05-15",
-    "courseDetails": "Computer Science"
-  }
+  "recipient": "abc@smaple.com", 
+  "subject": "sample subject" , 
+  "body":"sample body"
 }
 ```
 
@@ -245,8 +236,7 @@ Register a new certificate request from an issuer.
 ```json
 {
   "success": true,
-  "message": "Certificate registration successful",
-  "registrationId": "cert_12345"
+  "message": "Email sent successfully"
 }
 ```
 
@@ -255,27 +245,31 @@ Register a new certificate request from an issuer.
 POST /certificates/issue
 ```
 
-Issue a certificate and send notification email.
+Issue a certificate by issuer.
 
 **Request Body:**
 ```json
 {
-  "certificateId": "cert_12345",
-  "recipientEmail": "john@example.com",
-  "certificateMetadata": {
-    "tokenId": 1,
-    "ipfsHash": "QmX...",
-    "transactionHash": "0x..."
-  }
+  "message": "Certificate issued successfully",
+  "certificateId": "a1b2c3d4-e5f6-7890-abcd-1234567890ef",
+  "mainDocData": {
+    "recipientName": "John Doe",
+    "recipientEmail": "john.doe@example.com",
+    "courseName": "Blockchain Fundamentals",
+    "issuer": "TrueCert Institute",
+    "grade": "A+",
+    "certificateType": "Completion Certificate"
+  },
+  "issueDate": "2025-06-02T14:05:23.000Z"
 }
+
 ```
 
 **Response:**
 ```json
 {
   "success": true,
-  "message": "Certificate issued successfully",
-  "certificateUrl": "https://truecert.com/verify/cert_12345"
+  "message": "Certificate uploaded to IPFS."
 }
 ```
 
@@ -306,10 +300,6 @@ module.exports = {
     sepolia: {
       url: process.env.SEPOLIA_URL,
       accounts: [process.env.PRIVATE_KEY]
-    },
-    mainnet: {
-      url: process.env.MAINNET_URL,
-      accounts: [process.env.PRIVATE_KEY]
     }
   }
 };
@@ -320,9 +310,6 @@ module.exports = {
 ```bash
 # Deploy to Sepolia testnet
 npx hardhat ignition deploy deployments/ --network sepolia
-
-# Deploy to mainnet (ensure sufficient ETH balance)
-npx hardhat ignition deploy deployments/ --network mainnet
 
 # Verify contracts on Etherscan
 npx hardhat verify --network sepolia <CONTRACT_ADDRESS>
@@ -440,4 +427,4 @@ We welcome contributions to TrueCert! Please follow these guidelines:
 
 ---
 
-**Built with ❤️ by @virtualvasu
+**Built with ❤️ by @virtualvasu**
