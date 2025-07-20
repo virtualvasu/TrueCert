@@ -18,7 +18,7 @@ const CheckCertificate = () => {
       setLoading(true);
       setStatus(null);
 
-      if (!ipfsHash || !/^[a-zA-Z0-9]{46}$/.test(ipfsHash)) {
+      if (!ipfsHash ) {
         setStatus({ message: 'Please enter a valid IPFS hash.', success: false });
         return;
       }
