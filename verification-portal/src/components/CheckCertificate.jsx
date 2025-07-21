@@ -11,6 +11,7 @@ const CheckCertificate = () => {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState(null);
   const [certificateDetails, setCertificateDetails] = useState(null);
+  const [organizationName, setOrganizationName] = useState('');
 
   const web3 = new Web3(new Web3.providers.HttpProvider(import.meta.env.VITE_INFURA_URL_SEPOLIA));
 
@@ -38,6 +39,15 @@ const CheckCertificate = () => {
         // Fetch certificate details
         const certDetails = await contract.methods.getCertificate(ipfsHash).call();
         
+        // Fetch organization name using the issuer address
+        try {
+          const orgName = await contract.methods.getOrgName(certDetails.issuerAddress).call();
+          setOrganizationName(orgName);
+        } catch (orgError) {
+          console.warn('Could not fetch organization name:', orgError);
+          setOrganizationName('');
+        }
+        
         setCertificateDetails({
           issuerAddress: certDetails.issuerAddress,
           timeStamp: new Date(parseInt(certDetails.timeStamp) * 1000).toLocaleString(),
@@ -55,6 +65,7 @@ const CheckCertificate = () => {
         });
       } else {
         setCertificateDetails(null);
+        setOrganizationName('');
         setStatus({
           message: 'Certificate does not exist or is issued by some other organisation.',
           success: false,
@@ -69,8 +80,8 @@ const CheckCertificate = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white shadow-lg rounded-lg p-8 mt-8">
-      <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+    <div className="max-w-2xl mx-auto bg-white shadow-xl rounded-2xl p-8 mt-8 border border-purple-100">
+      <h2 className="text-3xl font-bold text-center text-purple-800 mb-6">
         Verify Certificate
       </h2>
       <div className="space-y-4">
@@ -93,39 +104,70 @@ const CheckCertificate = () => {
       {status && <StatusMessage message={status.message} success={status.success} />}
       
       {certificateDetails && (
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-          <h3 className="text-lg font-semibold text-gray-800 mb-3">Certificate Details</h3>
-          <div className="space-y-2 text-sm">
-            <div className="grid grid-cols-1 gap-2">
-              <div>
-                <span className="font-medium text-gray-700">Certificate Name:</span>
-                <p className="text-gray-600 mt-1">{certificateDetails.name}</p>
+        <div className="mt-8 p-6 bg-gradient-to-br from-purple-50 to-white border border-purple-200 rounded-xl shadow-lg">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-2xl font-bold text-purple-800">Certificate Details</h3>
+            <div className={`px-4 py-2 rounded-full text-sm font-semibold ${
+              certificateDetails.isRevoked 
+                ? 'bg-red-100 text-red-700 border border-red-200' 
+                : 'bg-green-100 text-green-700 border border-green-200'
+            }`}>
+              {certificateDetails.isRevoked ? '⚠️ Revoked' : '✅ Active'}
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="bg-white p-4 rounded-lg border border-purple-100 shadow-sm">
+                <span className="text-sm font-semibold text-purple-600 uppercase tracking-wide">Certificate Name</span>
+                <p className="text-lg font-medium text-gray-800 mt-1">{certificateDetails.name}</p>
               </div>
-              <div>
-                <span className="font-medium text-gray-700">Certificate Title:</span>
-                <p className="text-gray-600 mt-1">{certificateDetails.title}</p>
+              
+              <div className="bg-white p-4 rounded-lg border border-purple-100 shadow-sm">
+                <span className="text-sm font-semibold text-purple-600 uppercase tracking-wide">Certificate Title</span>
+                <p className="text-lg font-medium text-gray-800 mt-1">{certificateDetails.title}</p>
               </div>
-              {certificateDetails.extra_info && (
-                <div>
-                  <span className="font-medium text-gray-700">Additional Information:</span>
-                  <p className="text-gray-600 mt-1">{certificateDetails.extra_info}</p>
-                </div>
-              )}
-              <div>
-                <span className="font-medium text-gray-700">Issuer Address:</span>
-                <p className="text-gray-600 mt-1 break-all">{certificateDetails.issuerAddress}</p>
-              </div>
-              <div>
-                <span className="font-medium text-gray-700">Issue Date:</span>
-                <p className="text-gray-600 mt-1">{certificateDetails.timeStamp}</p>
-              </div>
-              <div>
-                <span className="font-medium text-gray-700">Status:</span>
-                <p className={`mt-1 font-medium ${certificateDetails.isRevoked ? 'text-red-600' : 'text-green-600'}`}>
-                  {certificateDetails.isRevoked ? 'Revoked' : 'Active'}
-                </p>
+              
+              <div className="bg-white p-4 rounded-lg border border-purple-100 shadow-sm">
+                <span className="text-sm font-semibold text-purple-600 uppercase tracking-wide">Issue Date</span>
+                <p className="text-lg font-medium text-gray-800 mt-1">{certificateDetails.timeStamp}</p>
               </div>
             </div>
+            
+            <div className="space-y-4">
+              {certificateDetails.extra_info && (
+                <div className="bg-white p-4 rounded-lg border border-purple-100 shadow-sm">
+                  <span className="text-sm font-semibold text-purple-600 uppercase tracking-wide">Additional Information</span>
+                  <p className="text-gray-700 mt-1 leading-relaxed">{certificateDetails.extra_info}</p>
+                </div>
+              )}
+              
+              <div className="bg-white p-4 rounded-lg border border-purple-100 shadow-sm">
+                <span className="text-sm font-semibold text-purple-600 uppercase tracking-wide">Issuer Organization</span>
+                {organizationName ? (
+                  <div className="mt-1">
+                    <p className="text-lg font-medium text-gray-800">{organizationName}</p>
+                    <p className="text-sm font-mono text-gray-600 mt-1 break-all bg-gray-50 p-2 rounded border">
+                      {certificateDetails.issuerAddress}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-sm font-mono text-gray-600 mt-1 break-all bg-gray-50 p-2 rounded border">
+                    {certificateDetails.issuerAddress}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-6 p-4 bg-purple-100 rounded-lg border border-purple-200">
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-purple-600 rounded-full"></div>
+              <span className="text-sm font-semibold text-purple-800">Blockchain Verified</span>
+            </div>
+            <p className="text-sm text-purple-700 mt-2">
+              This certificate has been verified on the blockchain and is cryptographically secure.
+            </p>
           </div>
         </div>
       )}

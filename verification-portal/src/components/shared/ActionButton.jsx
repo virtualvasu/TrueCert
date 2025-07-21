@@ -4,10 +4,10 @@ const ActionButton = ({ onClick, loading, disabled, children }) => {
   return (
     <button
       onClick={onClick}
-      className={`w-full py-2 px-4 rounded-lg text-white transition duration-300 ${
+      className={`w-full py-3 px-6 rounded-lg text-white font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg ${
         loading
-          ? 'bg-indigo-300 cursor-not-allowed'
-          : 'bg-indigo-600 hover:bg-indigo-700'
+          ? 'bg-gray-400 cursor-not-allowed'
+          : 'bg-purple-600 hover:bg-purple-700 hover:shadow-xl'
       }`}
       disabled={disabled || loading}
     >
