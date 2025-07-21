@@ -12,7 +12,8 @@ const CheckCertificate = () => {
   const [status, setStatus] = useState(null);
   const [certificateDetails, setCertificateDetails] = useState(null);
   const [organizationName, setOrganizationName] = useState('');
-  const [showSuccessPopover, setShowSuccessPopover] = useState(false);
+  const [showResultDialog, setShowResultDialog] = useState(false);
+  const [verificationResult, setVerificationResult] = useState(null);
   const [scrollProgress, setScrollProgress] = useState(0);
 
   const web3 = new Web3(new Web3.providers.HttpProvider(import.meta.env.VITE_INFURA_URL_SEPOLIA));
@@ -82,10 +83,15 @@ const CheckCertificate = () => {
           success: !certDetails.isRevoked,
         });
 
-        if (!certDetails.isRevoked) {
-          setShowSuccessPopover(true);
-          setTimeout(() => setShowSuccessPopover(false), 4000);
-        }
+        // Show result dialog
+        setVerificationResult({
+          success: !certDetails.isRevoked,
+          type: certDetails.isRevoked ? 'revoked' : 'verified',
+          message: certDetails.isRevoked 
+            ? 'Certificate Revoked' 
+            : 'Certificate Verified Successfully!'
+        });
+        setShowResultDialog(true);
       } else {
         setCertificateDetails(null);
         setOrganizationName('');
@@ -93,6 +99,14 @@ const CheckCertificate = () => {
           message: 'Certificate does not exist or is issued by some other organisation.',
           success: false,
         });
+
+        // Show not found dialog
+        setVerificationResult({
+          success: false,
+          type: 'not_found',
+          message: 'Certificate Not Found'
+        });
+        setShowResultDialog(true);
       }
     } catch (error) {
       console.error('Error:', error.message);
@@ -112,15 +126,77 @@ const CheckCertificate = () => {
         />
       </div>
 
-      {/* Success Popover */}
-      {showSuccessPopover && (
-        <div className="fixed top-20 right-8 z-50 animate-bounce">
-          <div className="bg-green-500 text-white px-6 py-4 rounded-lg shadow-2xl border border-green-400">
-            <div className="flex items-center space-x-2">
-              <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
-                <span className="text-green-500 font-bold">✓</span>
+      {/* Result Dialog Modal */}
+      {showResultDialog && verificationResult && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowResultDialog(false)}
+          />
+          
+          {/* Dialog */}
+          <div className="relative bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 shadow-2xl max-w-md w-full mx-4 animate-scale-in">
+            <div className="text-center">
+              {/* Animated Icon */}
+              <div className="mx-auto mb-6 w-20 h-20 flex items-center justify-center">
+                {verificationResult.type === 'verified' && (
+                  <div className="relative">
+                    <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center animate-bounce-in">
+                      <svg className="w-12 h-12 text-white animate-check-draw" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <div className="absolute inset-0 bg-green-400 rounded-full animate-ping opacity-75"></div>
+                  </div>
+                )}
+                
+                {verificationResult.type === 'revoked' && (
+                  <div className="relative">
+                    <div className="w-20 h-20 bg-yellow-500 rounded-full flex items-center justify-center animate-bounce-in">
+                      <svg className="w-12 h-12 text-white animate-warning-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
+                    </div>
+                    <div className="absolute inset-0 bg-yellow-400 rounded-full animate-ping opacity-75"></div>
+                  </div>
+                )}
+                
+                {verificationResult.type === 'not_found' && (
+                  <div className="relative">
+                    <div className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center animate-bounce-in">
+                      <svg className="w-12 h-12 text-white animate-x-draw" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </div>
+                    <div className="absolute inset-0 bg-red-400 rounded-full animate-ping opacity-75"></div>
+                  </div>
+                )}
               </div>
-              <span className="font-semibold">Certificate Verified Successfully!</span>
+              
+              {/* Message */}
+              <h3 className="text-2xl font-bold text-white mb-3">
+                {verificationResult.message}
+              </h3>
+              
+              {/* Sub-message */}
+              <p className="text-slate-300 mb-6">
+                {verificationResult.type === 'verified' && 'This certificate has been successfully verified on the blockchain.'}
+                {verificationResult.type === 'revoked' && 'This certificate exists but has been revoked by the issuer.'}
+                {verificationResult.type === 'not_found' && 'This certificate could not be found or is from an unknown issuer.'}
+              </p>
+              
+              {/* Close Button */}
+              <button
+                onClick={() => setShowResultDialog(false)}
+                className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
+                  verificationResult.success 
+                    ? 'bg-green-600 hover:bg-green-700 text-white' 
+                    : 'bg-slate-600 hover:bg-slate-700 text-white'
+                }`}
+              >
+                Continue
+              </button>
             </div>
           </div>
         </div>

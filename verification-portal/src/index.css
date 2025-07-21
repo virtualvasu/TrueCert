@@ -1,1 +1,82 @@
 @import "tailwindcss";
+
+/* Custom animations for verification dialog */
+@keyframes scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes check-draw {
+  0% {
+    stroke-dasharray: 0 50;
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dasharray: 50 0;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes x-draw {
+  0% {
+    stroke-dasharray: 0 30;
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dasharray: 30 0;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes warning-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s ease-out;
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.6s ease-out;
+}
+
+.animate-check-draw {
+  animation: check-draw 0.8s ease-out 0.3s both;
+}
+
+.animate-x-draw {
+  animation: x-draw 0.6s ease-out 0.3s both;
+}
+
+.animate-warning-pulse {
+  animation: warning-pulse 1.5s ease-in-out infinite;
+}
