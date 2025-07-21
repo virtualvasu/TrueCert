@@ -119,7 +119,7 @@ const CheckCertificate = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className="bg-white p-4 rounded-lg border border-purple-100 shadow-sm">
-                <span className="text-sm font-semibold text-purple-600 uppercase tracking-wide">Certificate Name</span>
+                <span className="text-sm font-semibold text-purple-600 uppercase tracking-wide">Recipient's Name</span>
                 <p className="text-lg font-medium text-gray-800 mt-1">{certificateDetails.name}</p>
               </div>
               
