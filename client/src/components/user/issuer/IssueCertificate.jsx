@@ -16,6 +16,11 @@ const IssueCertificate = () => {
     const [pdfUrl, setPdfUrl] = useState('');
     const [inputMode, setInputMode] = useState('generate'); // 'generate' or 'cid'
     const [ipfsCid, setIpfsCid] = useState('');
+    const [certificateDetails, setCertificateDetails] = useState({
+        name: '',
+        title: '',
+        extra_info: ''
+    });
 
     const handleTemplateChange = (templateName) => {
         setSelectedTemplate(templateName);
@@ -32,6 +37,13 @@ const IssueCertificate = () => {
         return cid.length >= 40 && /^[a-zA-Z0-9]+$/.test(cid);
     };
 
+    const handleCertificateDetailsChange = (field, value) => {
+        setCertificateDetails(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
     const handleIssueCertificate = async () => {
         try {
             const { web3, userAccount } = await initializeWeb3();
@@ -39,10 +51,16 @@ const IssueCertificate = () => {
             // Apply checksum to the user account address
             const userAccountChecksum = web3.utils.toChecksumAddress(userAccount);
 
+            // Validation for certificate details (required for both modes)
+            if (!certificateDetails.name.trim() || !certificateDetails.title.trim()) {
+                alert('Please fill in certificate name and title.');
+                return;
+            }
+
             // Validation based on input mode
             if (inputMode === 'generate') {
                 if (Object.values(formValues).includes('')) {
-                    alert('Please fill in all fields.');
+                    alert('Please fill in all template fields.');
                     return;
                 }
             } else if (inputMode === 'cid') {
@@ -87,7 +105,13 @@ const IssueCertificate = () => {
             }
 
             // Store certificate on blockchain
-            await contract.methods.storeCertificate(ipfsHash, userAccountChecksum).send({ from: userAccountChecksum });
+            await contract.methods.storeCertificate(
+                ipfsHash, 
+                userAccountChecksum, 
+                certificateDetails.name,
+                certificateDetails.title,
+                certificateDetails.extra_info
+            ).send({ from: userAccountChecksum });
 
             if (inputMode === 'generate') {
                 handleGenerateHTML({
@@ -185,6 +209,52 @@ const IssueCertificate = () => {
                                     />
                                     Provide IPFS CID
                                 </label>
+                            </div>
+                        </div>
+
+                        {/* Certificate Details Fields */}
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-medium text-gray-700">Certificate Details</h3>
+                            <div className="space-y-3">
+                                <div>
+                                    <label htmlFor="certName" className="block text-sm font-medium text-gray-700">
+                                        Certificate Name *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="certName"
+                                        value={certificateDetails.name}
+                                        onChange={(e) => handleCertificateDetailsChange('name', e.target.value)}
+                                        placeholder="e.g., Certificate of Achievement"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="certTitle" className="block text-sm font-medium text-gray-700">
+                                        Certificate Title *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="certTitle"
+                                        value={certificateDetails.title}
+                                        onChange={(e) => handleCertificateDetailsChange('title', e.target.value)}
+                                        placeholder="e.g., Web Development Course"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="certExtraInfo" className="block text-sm font-medium text-gray-700">
+                                        Additional Information
+                                    </label>
+                                    <textarea
+                                        id="certExtraInfo"
+                                        value={certificateDetails.extra_info}
+                                        onChange={(e) => handleCertificateDetailsChange('extra_info', e.target.value)}
+                                        placeholder="e.g., Completed 40-hour course with distinction"
+                                        rows="3"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    />
+                                </div>
                             </div>
                         </div>
 

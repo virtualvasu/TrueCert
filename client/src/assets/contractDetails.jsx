@@ -1,4 +1,4 @@
-export const contractAddress = '0x3a55C806cB01418dc22B3bD192f1F2607108D892';
+export const contractAddress = '0x608FE78020E0D399a252f69697E5dfE07AaC57f8';
 
 export const contractABI = [
     {
@@ -25,6 +25,21 @@ export const contractABI = [
                 "internalType": "bool",
                 "name": "isRevoked",
                 "type": "bool"
+            },
+            {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "title",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "extra_info",
+                "type": "string"
             }
         ],
         "stateMutability": "view",
@@ -97,6 +112,21 @@ export const contractABI = [
                 "internalType": "bool",
                 "name": "isRevoked",
                 "type": "bool"
+            },
+            {
+                "internalType": "string",
+                "name": "name",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "title",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "extra_info",
+                "type": "string"
             }
         ],
         "stateMutability": "view",
@@ -189,6 +219,21 @@ export const contractABI = [
                 "internalType": "address",
                 "name": "_issuerAddress",
                 "type": "address"
+            },
+            {
+                "internalType": "string",
+                "name": "_name",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "_title",
+                "type": "string"
+            },
+            {
+                "internalType": "string",
+                "name": "_extra_info",
+                "type": "string"
             }
         ],
         "name": "storeCertificate",

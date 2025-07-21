@@ -9,6 +9,9 @@ describe("CertificateStorage Contract", function () {
     const ipfsHash = "QmT5NvUtoM9zZz2n1Z1c2d8b6f5e7u3h6e7r9k3d7e8t5s";
     const orgAddress = "0x1234567890abcdef1234567890abcdef12345678";
     const orgName = "Blockchain Institute";
+    const name = "John Doe";
+    const title = "Blockchain Developer Certificate";
+    const extraInfo = "Completed advanced blockchain development course";
 
     beforeEach(async function () {
         CertificateStorage = await ethers.getContractFactory("CertificateStorage");
@@ -18,17 +21,20 @@ describe("CertificateStorage Contract", function () {
     });
 
     it("should store a certificate", async function () {
-        await certificateStorage.storeCertificate(ipfsHash, issuerAddress.address);
+        await certificateStorage.storeCertificate(ipfsHash, issuerAddress.address, name, title, extraInfo);
 
         const cert = await certificateStorage.certificates(ipfsHash);
 
         expect(cert.issuerAddress).to.equal(issuerAddress.address);
         expect(cert.timeStamp).to.be.instanceOf(ethers.BigNumber); // Check if timestamp is BigNumber
         expect(cert.isRevoked).to.equal(false);
+        expect(cert.name).to.equal(name);
+        expect(cert.title).to.equal(title);
+        expect(cert.extra_info).to.equal(extraInfo);
     });
 
     it("should check existence of a certificate", async function () {
-        await certificateStorage.storeCertificate(ipfsHash, issuerAddress.address);
+        await certificateStorage.storeCertificate(ipfsHash, issuerAddress.address, name, title, extraInfo);
 
         const exists = await certificateStorage.checkExistence(ipfsHash, issuerAddress.address);
 
@@ -36,11 +42,11 @@ describe("CertificateStorage Contract", function () {
     });
 
     it("should not allow storing the same certificate twice", async function () {
-        await certificateStorage.storeCertificate(ipfsHash, issuerAddress.address);
+        await certificateStorage.storeCertificate(ipfsHash, issuerAddress.address, name, title, extraInfo);
 
         let errorOccurred = false;
         try {
-            await certificateStorage.storeCertificate(ipfsHash, issuerAddress.address);
+            await certificateStorage.storeCertificate(ipfsHash, issuerAddress.address, name, title, extraInfo);
         } catch (error) {
             errorOccurred = true;
             expect(error.message).to.include("Certificate already exists");
@@ -50,7 +56,7 @@ describe("CertificateStorage Contract", function () {
     });
 
     it("should revoke a certificate", async function () {
-        await certificateStorage.storeCertificate(ipfsHash, issuerAddress.address);
+        await certificateStorage.storeCertificate(ipfsHash, issuerAddress.address, name, title, extraInfo);
 
         const transactionResponse = await certificateStorage.revokeCertificate(ipfsHash);
         const receipt = await transactionResponse.wait(); // Wait for the transaction to be mined
@@ -74,13 +80,16 @@ describe("CertificateStorage Contract", function () {
     });
 
     it("should get the details of a stored certificate", async function () {
-        await certificateStorage.storeCertificate(ipfsHash, issuerAddress.address);
+        await certificateStorage.storeCertificate(ipfsHash, issuerAddress.address, name, title, extraInfo);
 
-        const [issuerAddr, timeStamp, isRevoked] = await certificateStorage.getCertificate(ipfsHash);
+        const [issuerAddr, timeStamp, isRevoked, certName, certTitle, certExtraInfo] = await certificateStorage.getCertificate(ipfsHash);
 
         expect(issuerAddr).to.equal(issuerAddress.address);
         expect(timeStamp).to.be.instanceOf(ethers.BigNumber); // Check if timestamp is BigNumber
         expect(isRevoked).to.equal(false);
+        expect(certName).to.equal(name);
+        expect(certTitle).to.equal(title);
+        expect(certExtraInfo).to.equal(extraInfo);
     });
 
     it("should not allow getting details of a non-existent certificate", async function () {

@@ -6,6 +6,9 @@ contract CertificateStorage {
         address issuerAddress;
         uint256 timeStamp;
         bool isRevoked;
+        string name;
+        string title;
+        string extra_info;
     }
 
     mapping(string => metaData) public certificates;
@@ -13,7 +16,10 @@ contract CertificateStorage {
 
     function storeCertificate(
         string memory _ipfsHash,
-        address _issuerAddress
+        address _issuerAddress,
+        string memory _name,
+        string memory _title,
+        string memory _extra_info
     ) public {
         require(
             certificates[_ipfsHash].issuerAddress == address(0),
@@ -24,6 +30,9 @@ contract CertificateStorage {
         _metaData.issuerAddress = _issuerAddress;
         _metaData.timeStamp = block.timestamp;
         _metaData.isRevoked = false;
+        _metaData.name = _name;
+        _metaData.title = _title;
+        _metaData.extra_info = _extra_info;
 
         certificates[_ipfsHash] = _metaData;
     }
@@ -55,11 +64,11 @@ contract CertificateStorage {
     )
         public
         view
-        returns (address issuerAddress, uint256 timeStamp, bool isRevoked)
+        returns (address issuerAddress, uint256 timeStamp, bool isRevoked, string memory name, string memory title, string memory extra_info)
     {
         metaData memory cert = certificates[_ipfsHash];
         require(cert.issuerAddress != address(0), "Certificate does not exist");
-        return (cert.issuerAddress, cert.timeStamp, cert.isRevoked);
+        return (cert.issuerAddress, cert.timeStamp, cert.isRevoked, cert.name, cert.title, cert.extra_info);
     }
     //admin fucntions
 

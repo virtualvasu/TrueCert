@@ -10,6 +10,7 @@ const CheckCertificate = () => {
   const [issuerAddress, setIssuerAddress] = useState('');
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState(null);
+  const [certificateDetails, setCertificateDetails] = useState(null);
 
   const web3 = new Web3(new Web3.providers.HttpProvider(import.meta.env.VITE_INFURA_URL_SEPOLIA));
 
@@ -17,6 +18,7 @@ const CheckCertificate = () => {
     try {
       setLoading(true);
       setStatus(null);
+      setCertificateDetails(null);
 
       if (!ipfsHash ) {
         setStatus({ message: 'Please enter a valid IPFS hash.', success: false });
@@ -32,12 +34,32 @@ const CheckCertificate = () => {
 
       const exists = await contract.methods.checkExistence(ipfsHash, issuerAddress).call();
 
-      setStatus({
-        message: exists
-          ? 'Certificate exists on the blockchain.'
-          : 'Certificate does not exist or is issued by some other organisation.',
-        success: exists,
-      });
+      if (exists) {
+        // Fetch certificate details
+        const certDetails = await contract.methods.getCertificate(ipfsHash).call();
+        
+        setCertificateDetails({
+          issuerAddress: certDetails.issuerAddress,
+          timeStamp: new Date(parseInt(certDetails.timeStamp) * 1000).toLocaleString(),
+          isRevoked: certDetails.isRevoked,
+          name: certDetails.name,
+          title: certDetails.title,
+          extra_info: certDetails.extra_info
+        });
+
+        setStatus({
+          message: certDetails.isRevoked 
+            ? 'Certificate exists but has been revoked.' 
+            : 'Certificate is valid and exists on the blockchain.',
+          success: !certDetails.isRevoked,
+        });
+      } else {
+        setCertificateDetails(null);
+        setStatus({
+          message: 'Certificate does not exist or is issued by some other organisation.',
+          success: false,
+        });
+      }
     } catch (error) {
       console.error('Error:', error.message);
       setStatus({ message: `Error: ${error.message}`, success: false });
@@ -69,6 +91,45 @@ const CheckCertificate = () => {
         </ActionButton>
       </div>
       {status && <StatusMessage message={status.message} success={status.success} />}
+      
+      {certificateDetails && (
+        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+          <h3 className="text-lg font-semibold text-gray-800 mb-3">Certificate Details</h3>
+          <div className="space-y-2 text-sm">
+            <div className="grid grid-cols-1 gap-2">
+              <div>
+                <span className="font-medium text-gray-700">Certificate Name:</span>
+                <p className="text-gray-600 mt-1">{certificateDetails.name}</p>
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Certificate Title:</span>
+                <p className="text-gray-600 mt-1">{certificateDetails.title}</p>
+              </div>
+              {certificateDetails.extra_info && (
+                <div>
+                  <span className="font-medium text-gray-700">Additional Information:</span>
+                  <p className="text-gray-600 mt-1">{certificateDetails.extra_info}</p>
+                </div>
+              )}
+              <div>
+                <span className="font-medium text-gray-700">Issuer Address:</span>
+                <p className="text-gray-600 mt-1 break-all">{certificateDetails.issuerAddress}</p>
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Issue Date:</span>
+                <p className="text-gray-600 mt-1">{certificateDetails.timeStamp}</p>
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Status:</span>
+                <p className={`mt-1 font-medium ${certificateDetails.isRevoked ? 'text-red-600' : 'text-green-600'}`}>
+                  {certificateDetails.isRevoked ? 'Revoked' : 'Active'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <p className="text-gray-600 text-sm mt-4 text-center">
         Enter the details carefully. Ensure you have an Ethereum node accessible.
       </p>

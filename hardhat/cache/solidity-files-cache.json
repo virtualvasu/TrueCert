@@ -1,45 +1,9 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
-    "/home/virtu/Desktop/ongoing_projects/TrueCert/hardhat/contracts/Certificate.sol": {
-      "lastModificationDate": 1736432703902,
-      "contentHash": "0c8d96f4e068e25f448d97e68bf46fad",
-      "sourceName": "contracts/Certificate.sol",
-      "solcConfig": {
-        "version": "0.8.28",
-        "settings": {
-          "evmVersion": "paris",
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "CertificateStorage"
-      ]
-    },
     "/home/virtu/Desktop/TrueCert/hardhat/contracts/Certificate.sol": {
-      "lastModificationDate": 1736932401432,
-      "contentHash": "0c8d96f4e068e25f448d97e68bf46fad",
+      "lastModificationDate": 1753037525681,
+      "contentHash": "8e5fa06b83b7f72a3ae5e7ec0b281903",
       "sourceName": "contracts/Certificate.sol",
       "solcConfig": {
         "version": "0.8.28",
