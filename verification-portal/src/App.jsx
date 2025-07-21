@@ -1,11 +1,11 @@
 import { Routes, Route } from 'react-router-dom';
-import VerificationHome from './pages/VerificationHome';
+import CheckCertificate from './components/CheckCertificate';
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<VerificationHome />} />
-      <Route path="/verify" element={<VerificationHome />} />
+      <Route path="/" element={<CheckCertificate />} />
+      <Route path="/verify" element={<CheckCertificate />} />
     </Routes>
   );
 }
